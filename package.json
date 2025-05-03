@@ -1,0 +1,9 @@
+{
+  "name": "mondlich",
+  "version": "1.0.0",
+  "description": "cross-engine vfx library",
+  "main": "index.js",
+  "repository": "https://github.com/handlessdude/mondlich.git",
+  "author": "Elizaveta Zalomnova <handlessdude@gmail.com>",
+  "license": "MIT"
+}
