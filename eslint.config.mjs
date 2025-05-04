@@ -6,6 +6,11 @@ import css from "@eslint/css";
 import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from "eslint/config";
 import eslintPluginImport from 'eslint-plugin-import'
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig([
     {
@@ -20,8 +25,8 @@ export default defineConfig([
             globals: globals.browser,
             parser: tseslint.parser,
             parserOptions: {
-                project: true,  // Enable type-aware linting
-                tsconfigRootDir: process.cwd(),  // Or import.meta.dirname in ESM
+                project: true,
+                tsconfigRootDir: __dirname,
             }
         },
         rules: {
