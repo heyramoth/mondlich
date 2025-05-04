@@ -31,7 +31,7 @@ export default defineConfig([
         },
         rules: {
             /* Error level */
-            'no-use-before-define': ['error', {
+            'no-use-before-define': ['warn', {
                 classes: false,
                 variables: false,
                 functions: false,
