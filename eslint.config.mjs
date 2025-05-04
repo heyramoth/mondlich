@@ -120,12 +120,6 @@ export default defineConfig([
         }
     },
     {
-        files: ["**/*.{js,mjs,cjs,ts}"],
-        languageOptions: {
-            globals: globals.browser
-        }
-    },
-    {
         files: ["**/*.json"],
         plugins: { json },
         language: "json/json",
