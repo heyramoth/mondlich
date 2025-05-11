@@ -2,9 +2,7 @@ export class BaseShaderProgram {
   #program: WebGLProgram | null = null;
   #vertexShader: WebGLShader | null = null;
   #fragmentShader: WebGLShader | null = null;
-  #matWorldUniformLocation: WebGLUniformLocation | null = null;
-  #matViewUniformLocation: WebGLUniformLocation | null = null;
-  #matProjUniformLocation: WebGLUniformLocation | null = null;
+  #uniformLocations: Map<PropertyKey, WebGLUniformLocation> = new Map();
 
   constructor(
     private readonly vertexShaderSource: string,
@@ -14,7 +12,7 @@ export class BaseShaderProgram {
     this.#initShaders();
     this.#compileShaders();
     this.#createProgram();
-    this.#initUniformLocations();
+    this.#cacheUniformLocations();
   }
 
   #initShaders = ( ): void => {
@@ -76,30 +74,47 @@ export class BaseShaderProgram {
     }
   };
 
-  #initUniformLocations = (): void => {
+  #cacheUniformLocations = (): void => {
     if (!this.#program) {
       throw new Error('Program not found');
     }
 
     this.use();
 
-    this.#matWorldUniformLocation = this.glContext.getUniformLocation(this.#program, 'mWorld');
-    this.#matViewUniformLocation = this.glContext.getUniformLocation(this.#program, 'mView');
-    this.#matProjUniformLocation = this.glContext.getUniformLocation(this.#program, 'mProj');
+    // total number of active uniforms
+    const numUniforms = this.glContext.getProgramParameter(
+      this.#program,
+      this.glContext.ACTIVE_UNIFORMS,
+    );
 
-    if (!this.#matWorldUniformLocation || !this.#matViewUniformLocation || !this.#matProjUniformLocation) {
-      throw new Error(`Error while getting matrices uniform location:
-      world ${this.#matWorldUniformLocation} |
-      view ${this.#matViewUniformLocation} |
-      projection ${this.#matProjUniformLocation} |
-    `);
+    // query and cache all uniform locations
+    for (let i = 0; i < numUniforms; i++) {
+      const uniformInfo: WebGLActiveInfo | null = this.glContext.getActiveUniform(this.#program, i);
+      if (!uniformInfo) continue;
+
+      const location: WebGLUniformLocation | null = this.glContext.getUniformLocation(
+        this.#program,
+        uniformInfo.name,
+      );
+
+      if (location) {
+        // for array uniforms. "myArray[0]" becomes "myArray"
+        const uniformName = uniformInfo.name.replace(/\[.*?\]/, '');
+        this.#uniformLocations.set(uniformName, location);
+      }
     }
   };
 
   #getUniformLocation = (name: string): WebGLUniformLocation | null => {
     if (!this.#program) throw new Error('Shader program not defined');
-    const location = this.glContext.getUniformLocation(this.#program, name);
-    if (location === -1) throw new Error(`Uniform '${name}' not defined`);
+
+    const cachedLocation = this.#uniformLocations.get(name);
+    if (cachedLocation) return cachedLocation;
+
+    const location: WebGLUniformLocation | null = this.glContext.getUniformLocation(this.#program, name);
+    if (location === -1 || location === null) throw new Error(`Uniform '${name}' not found or optimized out`);
+
+    this.#uniformLocations.set(name, location);
     return location;
   };
 
@@ -108,9 +123,19 @@ export class BaseShaderProgram {
     this.glContext.uniformMatrix4fv(location, false, val);
   };
 
-  setInteger = (name: string, val: number): void => {
+  setMat3 = (name: string, value: Float32Array): void => {
     const location = this.#getUniformLocation(name);
-    this.glContext.uniform1i(location, val);
+    this.glContext.uniformMatrix3fv(location, false, value);
+  };
+
+  setMat2 = (name: string, value: Float32Array): void => {
+    const location = this.#getUniformLocation(name);
+    this.glContext.uniformMatrix2fv(location, false, value);
+  };
+
+  setInt = (name: string, value: number): void => {
+    const location = this.#getUniformLocation(name);
+    this.glContext.uniform1i(location, value);
   };
 
   setFloat = (name: string, val: number): void => {
@@ -133,25 +158,14 @@ export class BaseShaderProgram {
     this.glContext.uniform4fv(location, val);
   };
 
-  setWorldMat = (val: Float32Array): void => {
-    if (!this.#matWorldUniformLocation) {
-      throw new Error('WorldUniformLocation not found');
-    }
-    this.glContext.uniformMatrix4fv(this.#matWorldUniformLocation, false, val);
+  setIntArray = (name: string, value: Int32Array): void => {
+    const location = this.#getUniformLocation(name);
+    this.glContext.uniform1iv(location, value);
   };
 
-  setViewMat = (val: Float32Array): void => {
-    if (!this.#matViewUniformLocation) {
-      throw new Error('ViewUniformLocation not found');
-    }
-    this.glContext.uniformMatrix4fv(this.#matViewUniformLocation, false, val);
-  };
-
-  setProjMat = (val: Float32Array): void => {
-    if (!this.#matProjUniformLocation) {
-      throw new Error('ProjUniformLocation not found');
-    }
-    this.glContext.uniformMatrix4fv(this.#matProjUniformLocation, false, val);
+  setFloatArray = (name: string, value: Float32Array): void => {
+    const location = this.#getUniformLocation(name);
+    this.glContext.uniform1fv(location, value);
   };
 
   get program(): WebGLProgram | null{
@@ -160,5 +174,13 @@ export class BaseShaderProgram {
 
   use = (): void => {
     this.glContext.useProgram(this.#program);
+  };
+
+  cleanup = (): void => {
+    if (this.#program) {
+      this.glContext.deleteProgram(this.#program);
+      this.#program = null;
+    }
+    this.#uniformLocations.clear();
   };
 }
