@@ -16,12 +16,12 @@ export class ParticleRenderer {
   render({
     shaderProgram,
     renderData,
-    particleCount,
+    count,
     updateUniforms,
   }: {
     shaderProgram: BaseShaderProgram,
     renderData: RenderData,
-    particleCount: number,
+    count: number,
     updateUniforms?: (args: {
       shaderProgram: BaseShaderProgram,
       cameraMatrix: Float32Array,
@@ -33,7 +33,7 @@ export class ParticleRenderer {
   }): void {
     if (!this.adapter) return;
 
-    this.adapter.executeInGLContext((gl) => {
+    this.adapter.executeInGLContext((gl: WebGLRenderingContext) => {
       const viewport = this.adapter!.getViewportSize();
       const cameraMatrix = this.adapter!.getCameraMatrix();
 
@@ -43,11 +43,23 @@ export class ParticleRenderer {
         viewport,
       });
 
-      this.draw(gl, renderData, particleCount);
+      this.draw({
+        gl,
+        renderData,
+        count,
+      });
     });
   }
 
-  draw(gl: WebGLRenderingContext, renderData: RenderData, count: number): void {
+  draw({
+    gl,
+    renderData,
+    count,
+  }: {
+    gl: WebGLRenderingContext,
+    renderData: RenderData,
+    count: number,
+  }): void {
     renderData.bindTextures();
 
     if (renderData.hasIndexBuffer) {

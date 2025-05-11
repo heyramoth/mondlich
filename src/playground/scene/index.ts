@@ -54,8 +54,10 @@ export const setupPlaygroundScene = (): void => {
     0.0, 0.0, 1.0, // Blue
   ]);
 
+  const indices = new Uint16Array([0, 1, 2]);
 
   const renderData = new RenderData(gl, shaderProgram);
+  renderData.createIndexBuffer(indices);
   renderData.createVertexBuffer('aPosition', positions, gl.STATIC_DRAW);
   renderData.createVertexBuffer('aColor', colors, gl.STATIC_DRAW);
 
@@ -85,7 +87,7 @@ export const setupPlaygroundScene = (): void => {
       {
         shaderProgram: renderData.program,
         renderData,
-        particleCount: 3, // number of vertices (3 for a triangle)
+        count: 3, // number of vertices (3 for a triangle)
       });
 
     requestAnimationFrame(render);
