@@ -67,7 +67,7 @@ export const setupPlaygroundScene = (): void => {
       size: 3,
       type: gl.FLOAT,
       normalized: false,
-      stride: 6 * Float32Array.BYTES_PER_ELEMENT,
+      stride: 0,
       offset: 0,
     },
     {
@@ -75,8 +75,8 @@ export const setupPlaygroundScene = (): void => {
       size: 3,
       type: gl.FLOAT,
       normalized: false,
-      stride: 6 * Float32Array.BYTES_PER_ELEMENT,
-      offset: 3 * Float32Array.BYTES_PER_ELEMENT,
+      stride: 0,
+      offset: 0,
     },
   ]);
 
