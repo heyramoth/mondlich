@@ -140,7 +140,7 @@ export class RenderData {
     this.textures.forEach(({ texture, unit }, name) => {
       this.gl.activeTexture(this.gl.TEXTURE0 + unit);
       this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-      this.shaderProgram.setInteger(name, unit);
+      this.shaderProgram.setInt(name, unit);
     });
   }
 
@@ -165,5 +165,9 @@ export class RenderData {
 
   get hasIndexBuffer(): boolean {
     return this.indexBuffer !== null;
+  }
+
+  get program(): BaseShaderProgram {
+    return this.shaderProgram;
   }
 }
