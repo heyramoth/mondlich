@@ -40,16 +40,24 @@ export const setupPlaygroundScene = (): void => {
 
   const particleRenderer = new ParticleRenderer(adapter);
 
-  // Triangle vertices (x, y, z) and colors (r, g, b)
-  const vertices = new Float32Array([
-    // Positions     // Colors
-    0.0, 0.5, 0.0, 1.0, 0.0, 0.0, // Top - Red
-    -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, // Bottom left - Green
-    0.5, -0.5, 0.0, 0.0, 0.0, 1.0, // Bottom right - Blue
+  const positions = new Float32Array([
+    // (x, y, z)
+    0.0, 0.5, 0.0, // Top
+    -0.5, -0.5, 0.0, // Bottom left
+    0.5, -0.5, 0.0, // Bottom right
   ]);
 
+  const colors = new Float32Array([
+    // (r, g, b)
+    1.0, 0.0, 0.0, // Red
+    0.0, 1.0, 0.0, // Green
+    0.0, 0.0, 1.0, // Blue
+  ]);
+
+
   const renderData = new RenderData(gl, shaderProgram);
-  renderData.createVertexBuffer('position', vertices);
+  renderData.createVertexBuffer('aPosition', positions, gl.STATIC_DRAW);
+  renderData.createVertexBuffer('aColor', colors, gl.STATIC_DRAW);
 
   renderData.setupVertexAttributes([
     {
