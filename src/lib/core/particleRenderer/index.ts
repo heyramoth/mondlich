@@ -4,8 +4,6 @@ import { EngineAdapter } from '@/lib/adapters/engineAdapter';
 
 export class ParticleRenderer {
   private adapter?: EngineAdapter;
-  private currentShader?: BaseShaderProgram;
-  private renderDataMap: Map<BaseShaderProgram, RenderData> = new Map();
 
   constructor(adapter?: EngineAdapter) {
     this.adapter = adapter;
@@ -15,6 +13,8 @@ export class ParticleRenderer {
     this.adapter = adapter;
   }
 
+  /*
+  private renderDataMap: Map<BaseShaderProgram, RenderData> = new Map();
   createRenderData(
     shaderProgram: BaseShaderProgram,
     buffers: Array<{
@@ -86,81 +86,51 @@ export class ParticleRenderer {
       }
     });
 
-    this.renderDataMap.set(shaderProgram, renderData!);
+    // this.renderDataMap.set(shaderProgram, renderData!);
     return renderData!;
-  }
+  }*/
 
-  setShader(shaderProgram: BaseShaderProgram): void {
-    this.currentShader = shaderProgram;
-  }
-
-  updateUniforms(
+  render({
+    shaderProgram,
+    renderData,
+    particleCount,
+    updateUniforms,
+  }: {
     shaderProgram: BaseShaderProgram,
-    cameraMatrix: Float32Array,
-    viewport: { width: number,
-      height: number, },
-    customUniforms?: (shader: BaseShaderProgram) => void,
-  ): void {
-    shaderProgram.use();
-
-    // Set standard uniforms
-    shaderProgram.setMat4('uViewProjection', cameraMatrix);
-    shaderProgram.setVec2('uViewportSize', [viewport.width, viewport.height]);
-
-    // Set any custom uniforms
-    if (customUniforms) {
-      customUniforms(shaderProgram);
-    }
-  }
-
-  draw(gl: WebGLRenderingContext, renderData: RenderData, count: number): void {
-    // Bind all textures
-    renderData.bindTextures();
-
-    // Draw
-    if (renderData.hasIndexBuffer) {
-      gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
-    } else {
-      gl.drawArrays(gl.POINTS, 0, count);
-    }
-  }
-
-  render(
-    shaderProgram: BaseShaderProgram,
+    renderData: RenderData,
     particleCount: number,
-    customUniforms?: (shader: BaseShaderProgram) => void,
-  ): void {
+    updateUniforms?: (args: {
+      shaderProgram: BaseShaderProgram,
+      cameraMatrix: Float32Array,
+      viewport: {
+        height: number,
+        width: number,
+      },
+    }) => void,
+  }): void {
     if (!this.adapter) return;
-
-    const renderData = this.renderDataMap.get(shaderProgram);
-    if (!renderData) {
-      throw new Error('No render data found for the specified shader program');
-    }
 
     this.adapter.executeInGLContext((gl) => {
       const viewport = this.adapter!.getViewportSize();
       const cameraMatrix = this.adapter!.getCameraMatrix();
 
-      this.updateUniforms(shaderProgram, cameraMatrix, viewport, customUniforms);
+      updateUniforms?.({
+        shaderProgram,
+        cameraMatrix,
+        viewport,
+      });
+
       this.draw(gl, renderData, particleCount);
     });
   }
 
-  cleanup(): void {
-    if (!this.adapter) return;
+  draw(gl: WebGLRenderingContext, renderData: RenderData, count: number): void {
+    renderData.bindTextures();
 
-    this.adapter.executeInGLContext(() => {
-      this.renderDataMap.forEach(renderData => renderData.cleanup());
-      this.renderDataMap.clear();
-      this.currentShader = undefined;
-    });
-  }
-
-  getCurrentShader(): BaseShaderProgram | undefined {
-    return this.currentShader;
-  }
-
-  getRenderData(shaderProgram: BaseShaderProgram): RenderData | undefined {
-    return this.renderDataMap.get(shaderProgram);
+    if (renderData.hasIndexBuffer) {
+      gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
+    } else {
+      gl.drawArrays(gl.POINTS, 0, count);
+    }
   }
 }
