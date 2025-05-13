@@ -1,10 +1,10 @@
 import { setupWebGLCanvas } from '@/playground/scene/domain/setupWebGLCanvas';
 import { CanvasAdapter } from '@/lib/adapters/canvasAdapter';
-import { BaseShaderProgram } from '@/lib/core/particleRenderer/domain/baseShaderProgram';
-import { ParticleRenderer } from '@/lib/core/particleRenderer';
+import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
+import { MondlichRenderer } from '@/lib/core/mondlichRenderer';
 
 import { fsSource, vsSource } from './domain/constants';
-import { RenderData } from '@/lib/core/particleRenderer/domain/renderData';
+import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -38,7 +38,7 @@ export const setupPlaygroundScene = (): void => {
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
 
-  const particleRenderer = new ParticleRenderer(adapter);
+  const mondlichRenderer = new MondlichRenderer(adapter);
 
   const positions = new Float32Array([
     // (x, y, z)
@@ -95,7 +95,7 @@ export const setupPlaygroundScene = (): void => {
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    particleRenderer.render(
+    mondlichRenderer.render(
       {
         shaderProgram: renderData.program,
         renderData,

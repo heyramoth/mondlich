@@ -1,8 +1,8 @@
-import { BaseShaderProgram } from '@/lib/core/particleRenderer/domain/baseShaderProgram';
-import { RenderData } from '@/lib/core/particleRenderer/domain/renderData';
+import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
+import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
 import { EngineAdapter } from '@/lib/adapters/engineAdapter';
 
-export class ParticleRenderer {
+export class MondlichRenderer {
   private adapter?: EngineAdapter;
 
   constructor(adapter?: EngineAdapter) {
