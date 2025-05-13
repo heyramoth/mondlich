@@ -1,1 +1,1 @@
-export { setupPlaygroundScene } from './scene/index';
+export { setupTriangleScene } from './triangleScene/index';

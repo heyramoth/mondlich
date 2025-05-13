@@ -1,10 +1,10 @@
-import { setupWebGLCanvas } from '@/playground/scene/domain/setupWebGLCanvas';
 import { CanvasAdapter } from '@/lib/adapters/canvasAdapter';
 import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
 import { MondlichRenderer } from '@/lib/core/mondlichRenderer';
 
 import { fsSource, vsSource } from './domain/constants';
 import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
+import { setupWebGLCanvas } from '../domain/setupWebGLCanvas';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -18,7 +18,7 @@ const configureRenderingContext = ({ gl, width, height }: {
   gl.clearColor(0, 0, 0, 1);
 };
 
-export const setupPlaygroundScene = (): void => {
+export const setupTriangleScene = (): void => {
   const width = 800;
   const height = 600;
 
