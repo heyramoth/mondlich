@@ -56,29 +56,41 @@ export const setupPlaygroundScene = (): void => {
 
   const indices = new Uint16Array([0, 1, 2]);
 
-  const renderData = new RenderData(gl, shaderProgram);
-  renderData.createIndexBuffer(indices);
-  renderData.createVertexBuffer('aPosition', positions, gl.STATIC_DRAW);
-  renderData.createVertexBuffer('aColor', colors, gl.STATIC_DRAW);
+  const renderData = new RenderData({
+    gl,
+    shaderProgram,
+    elementsCount: 3,
+  });
 
-  renderData.setupVertexAttributes([
-    {
-      name: 'aPosition',
-      size: 3,
+  renderData.createIndexBuffer({ data: indices });
+
+  const positionAttrSize = 3;
+
+  renderData.createVertexBuffer({
+    name: 'aPosition',
+    data: positions,
+    attributeConfig: {
+      size: positionAttrSize,
       type: gl.FLOAT,
       normalized: false,
-      stride: 0,
+      stride: positionAttrSize * Float32Array.BYTES_PER_ELEMENT,
       offset: 0,
     },
-    {
-      name: 'aColor',
-      size: 3,
+  });
+
+  const colorAttrSize = 3;
+
+  renderData.createVertexBuffer({
+    name: 'aColor',
+    data: colors,
+    attributeConfig: {
+      size: colorAttrSize,
       type: gl.FLOAT,
       normalized: false,
-      stride: 0,
+      stride: colorAttrSize * Float32Array.BYTES_PER_ELEMENT,
       offset: 0,
     },
-  ]);
+  });
 
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

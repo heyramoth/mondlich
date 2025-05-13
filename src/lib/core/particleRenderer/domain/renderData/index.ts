@@ -1,45 +1,130 @@
 import { BaseShaderProgram } from '@/lib/core/particleRenderer/domain/baseShaderProgram';
+import {
+  TIndexBufferConfig,
+  TVertexAttribPointerConfig,
+  TVertexBufferConfig,
+} from './domain/types';
+
+type TCreateVertexBufferArguments = {
+  name: string,
+  data: Float32Array,
+  attributeConfig: TVertexAttribPointerConfig,
+  usage?: number,
+};
 
 export class RenderData {
   private readonly gl: WebGLRenderingContext;
   private readonly shaderProgram: BaseShaderProgram;
-  private vertexBuffers: Map<string, WebGLBuffer> = new Map();
-  private indexBuffer: WebGLBuffer | null = null;
-  private textures: Map<string, { texture: WebGLTexture,
-    unit: number, }> = new Map();
-  private vertexArrayObject: WebGLVertexArrayObject | null = null;
+  readonly elementsCount: number;
 
-  constructor(gl: WebGLRenderingContext, shaderProgram: BaseShaderProgram) {
+  private vertexBuffers: Map<string, TVertexBufferConfig> = new Map();
+  private indexBufferConfig: TIndexBufferConfig | null = null;
+  private textures: Map<string, {
+    texture: WebGLTexture,
+    unit: number,
+  }> = new Map();
+
+  constructor({
+    gl,
+    shaderProgram,
+    elementsCount,
+  }: {
+    gl: WebGLRenderingContext,
+    shaderProgram: BaseShaderProgram,
+    elementsCount: number,
+  }) {
     this.gl = gl;
     this.shaderProgram = shaderProgram;
-
-    // Create VAO if WebGL2 or extension is available
-    if ('createVertexArray' in gl) {
-      this.vertexArrayObject = (gl as WebGL2RenderingContext).createVertexArray();
-    } else {
-      const vaoExt = gl.getExtension('OES_vertex_array_object');
-      if (vaoExt) {
-        this.vertexArrayObject = vaoExt.createVertexArrayOES();
-      }
-    }
+    this.elementsCount = elementsCount;
   }
 
-  createVertexBuffer(name: string, data: Float32Array, usage: number = this.gl.STATIC_DRAW): void {
+  createVertexBuffer({
+    name,
+    data,
+    attributeConfig,
+    usage = this.gl.STATIC_DRAW,
+  }: TCreateVertexBufferArguments): void {
     const buffer = this.gl.createBuffer();
     if (!buffer) throw new Error('Failed to create vertex buffer');
-
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, data, usage);
-    this.vertexBuffers.set(name, buffer);
+    this.vertexBuffers.set(name, {
+      buffer,
+      data,
+      attributeConfig,
+      usage,
+    });
   }
 
-  createIndexBuffer(data: Uint16Array | Uint32Array, usage: number = this.gl.STATIC_DRAW): void {
+  createVertexBuffers(buffers: Array<TCreateVertexBufferArguments>): void {
+    buffers.forEach(({
+      name,
+      data,
+      attributeConfig,
+      usage = this.gl.STATIC_DRAW,
+    }) => {
+      this.createVertexBuffer({
+        name,
+        data,
+        attributeConfig,
+        usage,
+      });
+    });
+  }
+
+  createIndexBuffer({
+    data,
+    usage = this.gl.STATIC_DRAW,
+  }: {
+    data: Uint16Array | Uint32Array,
+    usage?: number,
+  }): void {
     const buffer = this.gl.createBuffer();
     if (!buffer) throw new Error('Failed to create index buffer');
-
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffer);
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, data, usage);
-    this.indexBuffer = buffer;
+    this.indexBufferConfig = {
+      buffer,
+      data,
+      usage,
+    };
+  }
+
+  enableVertexBuffer(name: string): void {
+    if (!this.shaderProgram.program) throw new Error('Shader program not found');
+
+    const config = this.vertexBuffers.get(name);
+    if (!config) throw new Error(`Vertex buffer ${name} not found`);
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, config.buffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, config.data, config.usage);
+
+    const location = this.gl.getAttribLocation(this.shaderProgram.program, name);
+    if (location === -1) {
+      console.log(`Attribute ${name} not found. Skipping...`);
+      return;
+    }
+    this.gl.enableVertexAttribArray(location);
+    this.gl.vertexAttribPointer(
+      location,
+      config.attributeConfig.size,
+      config.attributeConfig.type,
+      config.attributeConfig.normalized,
+      config.attributeConfig.stride,
+      config.attributeConfig.offset,
+    );
+  }
+
+  enableAllVertexBuffers(): void {
+    this.vertexBuffers.forEach((_, name) => {
+      this.enableVertexBuffer(name);
+    });
+  }
+
+  enableIndexBuffer(): void {
+    if (!this.indexBufferConfig) return;
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBufferConfig.buffer);
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBufferConfig.data, this.indexBufferConfig.usage);
   }
 
   createTexture(
@@ -83,59 +168,6 @@ export class RenderData {
     });
   }
 
-  setupVertexAttributes(attributes: Array<{
-    name: string,
-    size: number,
-    type: number,
-    normalized: boolean,
-    stride: number,
-    offset: number,
-  }>): void {
-    if (this.vertexArrayObject) {
-      if ('bindVertexArray' in this.gl) {
-        (this.gl as WebGL2RenderingContext).bindVertexArray(this.vertexArrayObject);
-      } else {
-        const vaoExt = this.gl.getExtension('OES_vertex_array_object');
-        vaoExt?.bindVertexArrayOES(this.vertexArrayObject);
-      }
-    }
-
-    this.shaderProgram.use();
-
-    attributes.forEach(attr => {
-      const buffer = this.vertexBuffers.get(attr.name);
-      if (!buffer) throw new Error(`Vertex buffer ${attr.name} not found`);
-      if (!this.shaderProgram.program) throw new Error('Shader program not found');
-
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-      const location = this.gl.getAttribLocation(this.shaderProgram.program, attr.name);
-      if (location === -1) return; // Silently skip if attribute not found
-
-      this.gl.enableVertexAttribArray(location);
-      this.gl.vertexAttribPointer(
-        location,
-        attr.size,
-        attr.type,
-        attr.normalized,
-        attr.stride,
-        attr.offset,
-      );
-    });
-
-    if (this.indexBuffer) {
-      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    }
-
-    if (this.vertexArrayObject) {
-      if ('bindVertexArray' in this.gl) {
-        (this.gl as WebGL2RenderingContext).bindVertexArray(null);
-      } else {
-        const vaoExt = this.gl.getExtension('OES_vertex_array_object');
-        vaoExt?.bindVertexArrayOES(null);
-      }
-    }
-  }
-
   bindTextures(): void {
     this.textures.forEach(({ texture, unit }, name) => {
       this.gl.activeTexture(this.gl.TEXTURE0 + unit);
@@ -145,26 +177,13 @@ export class RenderData {
   }
 
   cleanup(): void {
-    // Clean up buffers
     this.vertexBuffers.forEach(buffer => this.gl.deleteBuffer(buffer));
-    if (this.indexBuffer) this.gl.deleteBuffer(this.indexBuffer);
-
-    // Clean up textures
+    if (this.indexBufferConfig) this.gl.deleteBuffer(this.indexBufferConfig.buffer);
     this.textures.forEach(({ texture }) => this.gl.deleteTexture(texture));
-
-    // Clean up VAO
-    if (this.vertexArrayObject) {
-      if ('deleteVertexArray' in this.gl) {
-        (this.gl as WebGL2RenderingContext).deleteVertexArray(this.vertexArrayObject);
-      } else {
-        const vaoExt = this.gl.getExtension('OES_vertex_array_object');
-        vaoExt?.deleteVertexArrayOES(this.vertexArrayObject);
-      }
-    }
   }
 
   get hasIndexBuffer(): boolean {
-    return this.indexBuffer !== null;
+    return this.indexBufferConfig !== null;
   }
 
   get program(): BaseShaderProgram {

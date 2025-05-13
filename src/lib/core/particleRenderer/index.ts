@@ -16,7 +16,6 @@ export class ParticleRenderer {
   render({
     shaderProgram,
     renderData,
-    count,
     updateUniforms,
   }: {
     shaderProgram: BaseShaderProgram,
@@ -46,7 +45,6 @@ export class ParticleRenderer {
       this.draw({
         gl,
         renderData,
-        count,
       });
     });
   }
@@ -54,18 +52,18 @@ export class ParticleRenderer {
   draw({
     gl,
     renderData,
-    count,
   }: {
     gl: WebGLRenderingContext,
     renderData: RenderData,
-    count: number,
   }): void {
-    renderData.bindTextures();
+    // renderData.bindTextures();
+    renderData.enableAllVertexBuffers();
 
     if (renderData.hasIndexBuffer) {
-      gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
+      renderData.enableIndexBuffer();
+      gl.drawElements(gl.TRIANGLES, renderData.elementsCount, gl.UNSIGNED_SHORT, 0);
     } else {
-      gl.drawArrays(gl.POINTS, 0, count);
+      gl.drawArrays(gl.TRIANGLES, 0, renderData.elementsCount);
     }
   }
 }
