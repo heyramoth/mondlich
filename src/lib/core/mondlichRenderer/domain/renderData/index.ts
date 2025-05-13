@@ -14,7 +14,7 @@ type TCreateVertexBufferArguments = {
 
 export class RenderData {
   private readonly gl: WebGLRenderingContext;
-  private readonly shaderProgram: BaseShaderProgram;
+  readonly shaderProgram: BaseShaderProgram;
   readonly elementsCount: number;
 
   private vertexBuffers: Map<string, TVertexBufferConfig> = new Map();
@@ -127,23 +127,36 @@ export class RenderData {
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBufferConfig.data, this.indexBufferConfig.usage);
   }
 
-  createTexture(
+  createTexture({
+    name,
+    unit,
+    source = null,
+    width = 1,
+    height = 1,
+  }: {
     name: string,
     unit: number,
-    source: TexImageSource | null = null,
-    width: number = 1,
-    height: number = 1,
-  ): void {
-    const texture = this.gl.createTexture();
+    source?: TexImageSource | null,
+    width?: number,
+    height?: number ,
+  }): void {
+    const texture: WebGLTexture = this.gl.createTexture();
     if (!texture) throw new Error('Failed to create texture');
 
     this.gl.activeTexture(this.gl.TEXTURE0 + unit);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
-    // Default texture (white pixel) if no source provided
     if (source) {
-      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, source);
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        0,
+        this.gl.RGBA,
+        this.gl.RGBA,
+        this.gl.UNSIGNED_BYTE,
+        source,
+      );
     } else {
+      // placeholder (white pixel) if no source provided
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
         0,
@@ -176,11 +189,32 @@ export class RenderData {
     });
   }
 
-  cleanup(): void {
+  disableAllVertexBuffers(): void {
+    this.vertexBuffers.forEach((_, name) => {
+      const location = this.gl.getAttribLocation(this.shaderProgram.program!, name);
+      if (location !== -1) {
+        this.gl.disableVertexAttribArray(location);
+      }
+    });
+  }
+
+  disableIndexBuffer(): void {
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
+  disableTextures(): void {
+    this.textures.forEach(({ unit }) => {
+      this.gl.activeTexture(this.gl.TEXTURE0 + unit);
+      this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+    });
+  }
+
+  dispose(): void {
     this.vertexBuffers.forEach(buffer => this.gl.deleteBuffer(buffer));
     if (this.indexBufferConfig) this.gl.deleteBuffer(this.indexBufferConfig.buffer);
     this.textures.forEach(({ texture }) => this.gl.deleteTexture(texture));
   }
+
 
   get hasIndexBuffer(): boolean {
     return this.indexBufferConfig !== null;

@@ -1,4 +1,3 @@
-import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
 import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
 import { EngineAdapter } from '@/lib/adapters/engineAdapter';
 
@@ -14,15 +13,11 @@ export class MondlichRenderer {
   }
 
   render({
-    shaderProgram,
     renderData,
-    updateUniforms,
+    useAdapterUniforms,
   }: {
-    shaderProgram: BaseShaderProgram,
     renderData: RenderData,
-    count: number,
-    updateUniforms?: (args: {
-      shaderProgram: BaseShaderProgram,
+    useAdapterUniforms?: (args: {
       cameraMatrix: Float32Array,
       viewport: {
         height: number,
@@ -33,11 +28,12 @@ export class MondlichRenderer {
     if (!this.adapter) return;
 
     this.adapter.executeInGLContext((gl: WebGLRenderingContext) => {
+      renderData.shaderProgram.use();
+
       const viewport = this.adapter!.getViewportSize();
       const cameraMatrix = this.adapter!.getCameraMatrix();
 
-      updateUniforms?.({
-        shaderProgram,
+      useAdapterUniforms?.({
         cameraMatrix,
         viewport,
       });
@@ -46,6 +42,8 @@ export class MondlichRenderer {
         gl,
         renderData,
       });
+
+      renderData.shaderProgram.disable();
     });
   }
 
@@ -56,14 +54,18 @@ export class MondlichRenderer {
     gl: WebGLRenderingContext,
     renderData: RenderData,
   }): void {
-    // renderData.bindTextures();
+    renderData.bindTextures();
     renderData.enableAllVertexBuffers();
 
     if (renderData.hasIndexBuffer) {
       renderData.enableIndexBuffer();
       gl.drawElements(gl.TRIANGLES, renderData.elementsCount, gl.UNSIGNED_SHORT, 0);
+      renderData.disableIndexBuffer();
     } else {
-      gl.drawArrays(gl.TRIANGLES, 0, renderData.elementsCount);
+      gl.drawArrays(gl.POINTS, 0, renderData.elementsCount);
     }
+
+    renderData.disableAllVertexBuffers();
+    renderData.disableTextures();
   }
 }

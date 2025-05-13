@@ -1,5 +1,6 @@
-import { setupTriangleScene } from '@/playground';
+import { setupSingleTextureScene, setupTriangleScene } from '@/playground';
 
 console.log('Hello. Setting up playground...');
 
 setupTriangleScene();
+setupSingleTextureScene();

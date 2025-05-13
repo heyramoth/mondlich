@@ -176,6 +176,10 @@ export class BaseShaderProgram {
     this.glContext.useProgram(this.#program);
   };
 
+  disable = (): void => {
+    this.glContext.useProgram(null);
+  };
+
   cleanup = (): void => {
     if (this.#program) {
       this.glContext.deleteProgram(this.#program);
