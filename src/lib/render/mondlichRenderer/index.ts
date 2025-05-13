@@ -1,5 +1,5 @@
-import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
-import { EngineAdapter } from '@/lib/adapters/engineAdapter';
+import { RenderData } from '@/lib/render';
+import { EngineAdapter } from '@/lib/adapters';
 
 export class MondlichRenderer {
   private adapter?: EngineAdapter;

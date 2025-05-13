@@ -1,9 +1,11 @@
 import { CanvasAdapter } from '@/lib/adapters/canvasAdapter';
-import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
-import { MondlichRenderer } from '@/lib/core/mondlichRenderer';
+import {
+  BaseShaderProgram,
+  RenderData,
+  MondlichRenderer,
+} from '@/lib/render';
 
 import { fsSource, vsSource } from './domain/constants';
-import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
 import { setupWebGLCanvas } from '../domain/setupWebGLCanvas';
 import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
 

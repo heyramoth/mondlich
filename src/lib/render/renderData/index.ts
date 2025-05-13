@@ -1,4 +1,4 @@
-import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
+import { BaseShaderProgram } from '@/lib/render';
 import {
   TIndexBufferConfig,
   TVertexAttribPointerConfig,

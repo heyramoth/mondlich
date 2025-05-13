@@ -1,11 +1,13 @@
 import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
 import { loadImage } from '@/lib/utils/loadImage';
-import { BaseShaderProgram } from '@/lib/core/mondlichRenderer/domain/baseShaderProgram';
+import {
+  BaseShaderProgram,
+  RenderData,
+  MondlichRenderer,
+} from '@/lib/render';
 import { fsSource, vsSource } from './domain/constants';
-import { RenderData } from '@/lib/core/mondlichRenderer/domain/renderData';
 import { CanvasAdapter } from '@/lib/adapters/canvasAdapter';
-import { MondlichRenderer } from '@/lib/core/mondlichRenderer';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
