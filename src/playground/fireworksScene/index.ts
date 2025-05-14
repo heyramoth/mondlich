@@ -1,5 +1,4 @@
 import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
-import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
 import { loadImage, Timer } from '@/lib/utils';
 import {
   BaseShaderProgram,
@@ -25,13 +24,20 @@ const configureRenderingContext = ({ gl, width, height }: {
   height: number,
 }): void => {
   gl.viewport(0, 0, width, height);
-  gl.enable(gl.DEPTH_TEST);
+  // gl.enable(gl.DEPTH_TEST); // this makes background bleed through png's transparent area and overlap rear particle textures somehow
   gl.enable(gl.BLEND);
-  // doesnt really matter
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  gl.enable(gl.CULL_FACE);
+  gl.frontFace(gl.CCW);
+  gl.cullFace(gl.BACK);
   gl.clearColor(0, 0, 0, 1);
 };
+
+export const DEFAULT_CANVAS_SIZE = {
+  width: 1920,
+  height: 1080,
+};
+
 
 export const setupFireworksScene = async (): Promise<void> => {
 
@@ -62,41 +68,41 @@ export const setupFireworksScene = async (): Promise<void> => {
     elementsCount: firework.particlesCount,
   });
 
-  renderData.createVertexBuffer({
-    name: 'aPosition',
-    data: firework.data.positions,
-    attributeConfig: {
-      size: BUFFER_CONFIGS.aPosition.attrSize,
-      type: gl.FLOAT,
-      normalized: false,
-      stride: BUFFER_CONFIGS.aPosition.attrSize * Float32Array.BYTES_PER_ELEMENT,
-      offset: 0,
+  renderData.createVertexBuffers([
+    {
+      name: 'aPosition',
+      data: firework.data.positions,
+      attributeConfig: {
+        size: BUFFER_CONFIGS.aPosition.attrSize,
+        type: gl.FLOAT,
+        normalized: false,
+        stride: BUFFER_CONFIGS.aPosition.attrSize * Float32Array.BYTES_PER_ELEMENT,
+        offset: 0,
+      },
     },
-  });
-
-  renderData.createVertexBuffer({
-    name: 'aColor',
-    data: firework.data.colors,
-    attributeConfig: {
-      size: BUFFER_CONFIGS.aColor.attrSize,
-      type: gl.FLOAT,
-      normalized: false,
-      stride: BUFFER_CONFIGS.aColor.attrSize * Float32Array.BYTES_PER_ELEMENT,
-      offset: 0,
+    {
+      name: 'aColor',
+      data: firework.data.colors,
+      attributeConfig: {
+        size: BUFFER_CONFIGS.aColor.attrSize,
+        type: gl.FLOAT,
+        normalized: false,
+        stride: BUFFER_CONFIGS.aColor.attrSize * Float32Array.BYTES_PER_ELEMENT,
+        offset: 0,
+      },
     },
-  });
-
-  renderData.createVertexBuffer({
-    name: 'aSize',
-    data: firework.data.sizes,
-    attributeConfig: {
-      size: BUFFER_CONFIGS.aSize.attrSize,
-      type: gl.FLOAT,
-      normalized: false,
-      stride: BUFFER_CONFIGS.aSize.attrSize * Float32Array.BYTES_PER_ELEMENT,
-      offset: 0,
+    {
+      name: 'aSize',
+      data: firework.data.sizes,
+      attributeConfig: {
+        size: BUFFER_CONFIGS.aSize.attrSize,
+        type: gl.FLOAT,
+        normalized: false,
+        stride: BUFFER_CONFIGS.aSize.attrSize * Float32Array.BYTES_PER_ELEMENT,
+        offset: 0,
+      },
     },
-  });
+  ]);
 
   const htmlImage: HTMLImageElement = await loadImage(IMAGE_SRC);
 
@@ -113,8 +119,8 @@ export const setupFireworksScene = async (): Promise<void> => {
     projectionMatrix,
   } = setupCamera({
     viewConfig: {
-      eye: [0, 1500, 750],
-      center: [0, 500, 0], // lookAt
+      eye: [0, 1500, 1000],
+      center: [0, 800, 0], // lookAt
       up: [0, 1, 0],
     },
     projectionConfig: {

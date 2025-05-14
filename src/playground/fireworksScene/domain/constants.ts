@@ -39,4 +39,4 @@ export const BUFFER_CONFIGS = {
   aSize: { attrSize: 1 },
 };
 
-export const PARTICLES_COUNT = 1000;
+export const PARTICLES_COUNT = 2500;
