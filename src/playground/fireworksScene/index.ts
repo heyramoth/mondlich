@@ -1,6 +1,6 @@
 import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
-import { loadImage } from '@/lib/utils';
+import { loadImage, Timer } from '@/lib/utils';
 import {
   BaseShaderProgram,
   RenderData,
@@ -12,9 +12,12 @@ import {
   fsSource,
   BUFFER_CONFIGS,
   IMAGE_SRC,
+  PARTICLES_COUNT,
 } from './domain/constants';
 import { glMatrix } from 'gl-matrix';
 import { setupCamera } from './domain/setupCamera';
+import { ParticleEffect } from '@/lib/core';
+import { FireworkSystem } from '@/lib/core/particleSystem/behaviors';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -44,10 +47,20 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
 
+  const timer = new Timer();
+
+  const firework = new ParticleEffect({
+    particlesCount: PARTICLES_COUNT,
+    particleSystem: new FireworkSystem(),
+    spawnFramespan: 10,
+    timer,
+  });
+
+  // TODO: сделать привязку данных ParticleEffect к RenderData
   const renderData = new RenderData({
     gl,
     shaderProgram,
-    elementsCount: 1,
+    elementsCount: PARTICLES_COUNT,
   });
 
   renderData.createVertexBuffers(
@@ -96,20 +109,31 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
+  timer.init();
+
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     mondlichRenderer.render({
       renderData,
-      // todo: reflex on
       useAdapterUniforms: () => {
         shaderProgram.setMat4('mWorld', worldMatrix);
         shaderProgram.setMat4('mView', viewMatrix);
         shaderProgram.setMat4('mProj', projectionMatrix);
       },
     });
-    requestAnimationFrame(render);
   };
 
-  render();
+  const loop = (): void => {
+    timer.updateDelta();
+
+    firework.update();
+    // тут новую data надо распихивать в renderData
+
+    render();
+
+    requestAnimationFrame(loop);
+  };
+
+  loop();
 };

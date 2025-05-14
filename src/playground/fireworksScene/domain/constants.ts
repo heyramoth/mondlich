@@ -56,3 +56,6 @@ export const BUFFER_CONFIGS = new Map([
     },
   ],
 ]);
+
+
+export const PARTICLES_COUNT = 1;

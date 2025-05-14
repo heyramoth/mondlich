@@ -8,11 +8,12 @@ export class Timer {
   get time (): number {
     return this.#prevTick;
   }
-  init = (): void => {
+
+  init (): void {
     this.#prevTick = performance.now();
   };
 
-  updateDelta = (): void => {
+  updateDelta (): void {
     const curTick = performance.now();
     this.#delta = curTick - this.#prevTick;
     this.#prevTick = curTick;
