@@ -17,8 +17,17 @@ export class ParticleEffect {
   private readonly pool: ParticlePool;
   private readonly timer: Timer;
   private readonly particleSystem: ParticleSystem;
-  private readonly particlesCount: number;
   private readonly spawnFramespan: number;
+  readonly particlesCount: number;
+
+  frameDelta = 0;
+  spawnCounter = 0;
+
+  data: {
+    positions: Float32Array,
+    colors: Float32Array,
+    sizes: Float32Array,
+  };
 
   constructor({
     particleSystem,
@@ -31,26 +40,18 @@ export class ParticleEffect {
     this.particleSystem = particleSystem;
     this.particlesCount = particlesCount;
     this.spawnFramespan = spawnFramespan;
+    this.data = {
+      positions: new Float32Array(particlesCount * 3),
+      colors: new Float32Array(particlesCount * 3),
+      sizes: new Float32Array(particlesCount),
+    };
     this.initPool();
   }
-
-  data: {
-    positions: number[],
-    colors: number[],
-    sizes: number[],
-  } = {
-      positions: [],
-      colors: [],
-      sizes: [],
-    };
 
   initPool (): void {
     for (let i = 0; i < this.particlesCount; i ++ ) {
       const p = new Particle(i);
       this.pool.particles.push(p);
-      this.data.positions.push(0,0,0);
-      this.data.colors.push(0,0,0);
-      this.data.sizes.push(0);
     }
   }
 
@@ -58,12 +59,9 @@ export class ParticleEffect {
     this.particleSystem.launch(this.pool);
   }
 
-  frameDelta = 0;
-  spawnCounter = 0;
-
   update(): void {
     const time = Date.now() * 0.001;
-    this.frameDelta += this.timer.delta;
+    this.frameDelta += this.timer.getDelta();
 
     if (this.spawnFramespan) {
       this.spawnCounter += 1;
@@ -74,23 +72,21 @@ export class ParticleEffect {
     }
 
     while(this.frameDelta >= 1 / MAX_FPS) {
-      for ( let i = 0; i < this.particlesCount * 3; i += 3 ) {
-        const pos = i / 3 | 0;
-        if (!this.pool.particles[pos].alive) {
-          continue;
-        }
+      for (let i = 0, posIdx = 0, colIdx = 0; i < this.particlesCount; i++) {
+        const particle = this.pool.particles[i];
+        if (!particle.alive) continue;
 
-        this.pool.particles[pos].update(this.frameDelta, time);
+        particle.update(this.frameDelta, time);
 
-        this.data.positions[i] = this.pool.particles[pos].x;
-        this.data.positions[i + 1] = this.pool.particles[pos].y;
-        this.data.positions[i + 2] = this.pool.particles[pos].z;
+        this.data.positions[posIdx++] = particle.x;
+        this.data.positions[posIdx++] = particle.y;
+        this.data.positions[posIdx++] = particle.z;
 
-        this.data.sizes[pos] = this.pool.particles[pos].size;
+        this.data.colors[colIdx++] = particle.color[0];
+        this.data.colors[colIdx++] = particle.color[1];
+        this.data.colors[colIdx++] = particle.color[2];
 
-        this.data.colors[i] = this.pool.particles[pos].color[0];
-        this.data.colors[i + 1] = this.pool.particles[pos].color[1];
-        this.data.colors[i + 2] = this.pool.particles[pos].color[2];
+        this.data.sizes[i] = particle.size;
       }
       this.frameDelta -= 1 / MAX_FPS;
     }

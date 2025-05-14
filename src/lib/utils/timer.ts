@@ -1,21 +1,45 @@
 export class Timer {
-  #prevTick: number = 0;
-  #delta: number = 0;
+  private startTime: number;
+  private oldTime: number;
+  private elapsedTime: number;
+  private running: boolean;
 
-  get delta (): number {
-    return this.#delta;
+  constructor(autoStart: boolean = true) {
+    this.startTime = 0;
+    this.oldTime = 0;
+    this.elapsedTime = 0;
+    this.running = false;
+
+    if (autoStart) this.start();
   }
-  get time (): number {
-    return this.#prevTick;
+
+  start(): void {
+    this.startTime = (typeof performance === 'undefined' ? Date : performance).now();
+    this.oldTime = this.startTime;
+    this.elapsedTime = 0;
+    this.running = true;
   }
 
-  init (): void {
-    this.#prevTick = performance.now();
-  };
+  stop(): void {
+    this.getElapsedTime();
+    this.running = false;
+  }
 
-  updateDelta (): void {
-    const curTick = performance.now();
-    this.#delta = curTick - this.#prevTick;
-    this.#prevTick = curTick;
-  };
+  getElapsedTime(): number {
+    this.getDelta();
+    return this.elapsedTime;
+  }
+
+  getDelta(): number {
+    let diff = 0;
+    const newTime = (typeof performance === 'undefined' ? Date : performance).now();
+
+    if (this.running) {
+      diff = (newTime - this.oldTime) / 1000;
+      this.elapsedTime += diff;
+      this.oldTime = newTime;
+    }
+
+    return diff;
+  }
 }

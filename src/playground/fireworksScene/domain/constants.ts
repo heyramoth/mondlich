@@ -33,29 +33,10 @@ void main() {
 
 export const IMAGE_SRC = '/src/assets/textures/spark.png';
 
-export const BUFFER_CONFIGS = new Map([
-  [
-    'aPosition',
-    {
-      data: new Float32Array([0.0, 0.0, 0.0]),
-      attrSize: 3,
-    },
-  ],
-  [
-    'aColor',
-    {
-      data: new Float32Array([1.0, 0.0, 0.0]),
-      attrSize: 3,
-    },
-  ],
-  [
-    'aSize',
-    {
-      data: new Float32Array([32]),
-      attrSize: 1,
-    },
-  ],
-]);
+export const BUFFER_CONFIGS = {
+  aPosition: { attrSize: 3 },
+  aColor: { attrSize: 3 },
+  aSize: { attrSize: 1 },
+};
 
-
-export const PARTICLES_COUNT = 1;
+export const PARTICLES_COUNT = 1000;

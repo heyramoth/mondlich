@@ -28,8 +28,8 @@ const configureRenderingContext = ({ gl, width, height }: {
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   // doesnt really matter
-  // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
   gl.clearColor(0, 0, 0, 1);
 };
 
@@ -47,7 +47,7 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
 
-  const timer = new Timer();
+  const timer = new Timer(false);
 
   const firework = new ParticleEffect({
     particlesCount: PARTICLES_COUNT,
@@ -56,27 +56,47 @@ export const setupFireworksScene = async (): Promise<void> => {
     timer,
   });
 
-  // TODO: сделать привязку данных ParticleEffect к RenderData
   const renderData = new RenderData({
     gl,
     shaderProgram,
-    elementsCount: PARTICLES_COUNT,
+    elementsCount: firework.particlesCount,
   });
 
-  renderData.createVertexBuffers(
-    Array.from(BUFFER_CONFIGS.entries())
-      .map(([name, config]) => ({
-        name,
-        data: config.data,
-        attributeConfig: {
-          size: config.attrSize,
-          type: gl.FLOAT,
-          normalized: false,
-          stride: config.attrSize * Float32Array.BYTES_PER_ELEMENT,
-          offset: 0,
-        },
-      })),
-  );
+  renderData.createVertexBuffer({
+    name: 'aPosition',
+    data: firework.data.positions,
+    attributeConfig: {
+      size: BUFFER_CONFIGS.aPosition.attrSize,
+      type: gl.FLOAT,
+      normalized: false,
+      stride: BUFFER_CONFIGS.aPosition.attrSize * Float32Array.BYTES_PER_ELEMENT,
+      offset: 0,
+    },
+  });
+
+  renderData.createVertexBuffer({
+    name: 'aColor',
+    data: firework.data.colors,
+    attributeConfig: {
+      size: BUFFER_CONFIGS.aColor.attrSize,
+      type: gl.FLOAT,
+      normalized: false,
+      stride: BUFFER_CONFIGS.aColor.attrSize * Float32Array.BYTES_PER_ELEMENT,
+      offset: 0,
+    },
+  });
+
+  renderData.createVertexBuffer({
+    name: 'aSize',
+    data: firework.data.sizes,
+    attributeConfig: {
+      size: BUFFER_CONFIGS.aSize.attrSize,
+      type: gl.FLOAT,
+      normalized: false,
+      stride: BUFFER_CONFIGS.aSize.attrSize * Float32Array.BYTES_PER_ELEMENT,
+      offset: 0,
+    },
+  });
 
   const htmlImage: HTMLImageElement = await loadImage(IMAGE_SRC);
 
@@ -109,7 +129,7 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
-  timer.init();
+  timer.start();
 
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -125,11 +145,7 @@ export const setupFireworksScene = async (): Promise<void> => {
   };
 
   const loop = (): void => {
-    timer.updateDelta();
-
     firework.update();
-    // тут новую data надо распихивать в renderData
-
     render();
 
     requestAnimationFrame(loop);
