@@ -14,9 +14,10 @@ import {
   PARTICLES_COUNT,
 } from './domain/constants';
 import { glMatrix } from 'gl-matrix';
-import { setupCamera } from './domain/setupCamera';
 import { ParticleEffect } from '@/lib/core';
 import { FireworkSystem } from '@/lib/core/particleSystem/behaviors';
+import { MondlichCamera } from '@/lib/utils/mondlichCamera';
+import { UserInput } from '@/lib/utils/userInput';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -53,13 +54,13 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
 
-  const timer = new Timer(false);
+  const fireworkTimer = new Timer(false);
 
   const firework = new ParticleEffect({
     particlesCount: PARTICLES_COUNT,
     particleSystem: new FireworkSystem(),
     spawnFramespan: 10,
-    timer,
+    timer: fireworkTimer,
   });
 
   const renderData = new RenderData({
@@ -112,12 +113,7 @@ export const setupFireworksScene = async (): Promise<void> => {
     unit: 0,
   });
 
-  // TODO: move to canvas adapter
-  const {
-    worldMatrix,
-    viewMatrix,
-    projectionMatrix,
-  } = setupCamera({
+  const camera = new MondlichCamera({
     viewConfig: {
       eye: [0, 1500, 1000],
       center: [0, 800, 0], // lookAt
@@ -127,15 +123,20 @@ export const setupFireworksScene = async (): Promise<void> => {
       fovy: glMatrix.toRadian(45),
       aspect: canvas.width / canvas.height,
       nearPlane: 0.1,
-      farPlane: 5000.0,
+      farPlane: 10000.0,
     },
+  });
+
+  const userInput = new UserInput({
+    camera,
+    sensitivity: 1,
   });
 
   const adapter = new CanvasAdapter(gl, canvas);
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
-  timer.start();
+  fireworkTimer.start();
 
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -143,15 +144,17 @@ export const setupFireworksScene = async (): Promise<void> => {
     mondlichRenderer.render({
       renderData,
       useAdapterUniforms: () => {
-        shaderProgram.setMat4('mWorld', worldMatrix);
-        shaderProgram.setMat4('mView', viewMatrix);
-        shaderProgram.setMat4('mProj', projectionMatrix);
+        shaderProgram.setMat4('mWorld', camera.worldMatrix);
+        shaderProgram.setMat4('mView', camera.viewMatrix);
+        shaderProgram.setMat4('mProj', camera.projectionMatrix);
       },
     });
   };
 
   const loop = (): void => {
     firework.update();
+    userInput.update();
+
     render();
 
     requestAnimationFrame(loop);
