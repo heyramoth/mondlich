@@ -6,8 +6,15 @@ import {
   RenderData,
   MondlichRenderer,
 } from '@/lib/render';
-import { fsSource, vsSource } from './domain/constants';
-import { CanvasAdapter } from '@/lib/adapters/canvasAdapter';
+import { CanvasAdapter } from '@/lib/adapters';
+import {
+  vsSource,
+  fsSource,
+  BUFFER_CONFIGS,
+  IMAGE_SRC,
+} from './domain/constants';
+import { glMatrix } from 'gl-matrix';
+import { setupCamera } from './domain/setupCamera';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -23,16 +30,7 @@ const configureRenderingContext = ({ gl, width, height }: {
   gl.clearColor(0, 0, 0, 1);
 };
 
-const IMAGE_SRC = '/src/assets/textures/clown-emoji.png';
-
-const POSITIONS_CONFIG = {
-  data: new Float32Array([
-    0.0, 0.0, 0.0,
-  ]),
-  attrSize: 3,
-};
-
-export const setupSingleTextureScene = async (): Promise<void> => {
+export const setupFireworksScene = async (): Promise<void> => {
 
   const { gl, canvas } = setupWebGLCanvas({
     ...DEFAULT_CANVAS_SIZE,
@@ -52,17 +50,20 @@ export const setupSingleTextureScene = async (): Promise<void> => {
     elementsCount: 1,
   });
 
-  renderData.createVertexBuffer({
-    name: 'aPosition',
-    data: POSITIONS_CONFIG.data,
-    attributeConfig: {
-      size: POSITIONS_CONFIG.attrSize,
-      type: gl.FLOAT,
-      normalized: false,
-      stride: POSITIONS_CONFIG.attrSize * Float32Array.BYTES_PER_ELEMENT,
-      offset: 0,
-    },
-  });
+  renderData.createVertexBuffers(
+    Array.from(BUFFER_CONFIGS.entries())
+      .map(([name, config]) => ({
+        name,
+        data: config.data,
+        attributeConfig: {
+          size: config.attrSize,
+          type: gl.FLOAT,
+          normalized: false,
+          stride: config.attrSize * Float32Array.BYTES_PER_ELEMENT,
+          offset: 0,
+        },
+      })),
+  );
 
   const htmlImage: HTMLImageElement = await loadImage(IMAGE_SRC);
 
@@ -70,6 +71,25 @@ export const setupSingleTextureScene = async (): Promise<void> => {
     name: 'u_pointTexture',
     source: htmlImage,
     unit: 0,
+  });
+
+  // TODO: move to canvas adapter
+  const {
+    worldMatrix,
+    viewMatrix,
+    projectionMatrix,
+  } = setupCamera({
+    viewConfig: {
+      eye: [0, 1500, 750],
+      center: [0, 500, 0], // lookAt
+      up: [0, 1, 0],
+    },
+    projectionConfig: {
+      fovy: glMatrix.toRadian(45),
+      aspect: canvas.width / canvas.height,
+      nearPlane: 0.1,
+      farPlane: 5000.0,
+    },
   });
 
   const adapter = new CanvasAdapter(gl, canvas);
@@ -81,8 +101,11 @@ export const setupSingleTextureScene = async (): Promise<void> => {
 
     mondlichRenderer.render({
       renderData,
-      useAdapterUniforms: ({ cameraMatrix }) => {
-        shaderProgram.setMat4('mCamera', cameraMatrix);
+      // todo: reflex on
+      useAdapterUniforms: () => {
+        shaderProgram.setMat4('mWorld', worldMatrix);
+        shaderProgram.setMat4('mView', viewMatrix);
+        shaderProgram.setMat4('mProj', projectionMatrix);
       },
     });
     requestAnimationFrame(render);
