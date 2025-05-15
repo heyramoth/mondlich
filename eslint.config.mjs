@@ -99,7 +99,7 @@ export default defineConfig([
             '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/no-unused-vars': 'warn',
             '@typescript-eslint/explicit-function-return-type': [
-                'error',
+                'off',
                 { allowExpressions: true }
             ],
             '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }],

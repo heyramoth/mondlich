@@ -42,4 +42,8 @@ export class Timer {
 
     return diff;
   }
+
+  get isRunning (): boolean {
+    return this.running;
+  }
 }

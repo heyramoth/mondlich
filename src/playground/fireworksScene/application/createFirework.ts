@@ -17,13 +17,10 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
 }> => {
   const fireworkShader = new BaseShaderProgram(vsSource, fsSource, gl);
 
-  const fireworkTimer = new Timer(false);
-
   const firework = new ParticleEffect({
     particlesCount: PARTICLES_COUNT,
     particleSystem: new FireworkSystem(),
     spawnFramespan: 10,
-    timer: fireworkTimer,
   });
 
   const fireworkRenderData = new RenderData({

@@ -6,7 +6,6 @@ import { glMatrix } from 'gl-matrix';
 import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { UserInput } from '@/lib/utils/userInput';
 import { createFirework } from './application/createFirework';
-import { createXZPlane } from './application/createXZPlane';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -46,11 +45,6 @@ export const setupFireworksScene = async (): Promise<void> => {
     fireworkShader,
   } = await createFirework(gl);
 
-  const {
-    planeRenderData,
-    planeShader,
-  } = createXZPlane(gl);
-
   const camera = new MondlichCamera({
     viewConfig: {
       eye: [0, 1500, 1000],
@@ -74,29 +68,20 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
-  firework.timer.start();
-
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    /*    mondlichRenderer.render({
+    mondlichRenderer.render({
       renderData: fireworkRenderData,
       useAdapterUniforms: () => {
         fireworkShader.setMat4('mWorld', camera.worldMatrix);
         fireworkShader.setMat4('mView', camera.viewMatrix);
         fireworkShader.setMat4('mProj', camera.projectionMatrix);
       },
-    });*/
-
-    mondlichRenderer.render({
-      renderData: planeRenderData,
-      useAdapterUniforms: () => {
-        planeShader.setMat4('mWorld', camera.worldMatrix);
-        planeShader.setMat4('mView', camera.viewMatrix);
-        planeShader.setMat4('mProj', camera.projectionMatrix);
-      },
     });
   };
+
+  firework.start();
 
   const loop = (): void => {
     firework.update();

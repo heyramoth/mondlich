@@ -7,7 +7,6 @@ type TConstructorArguments = {
   particleSystem: ParticleSystem,
   particlesCount: number,
   spawnFramespan: number,
-  timer: Timer,
 };
 
 const MAX_FPS = 60;
@@ -17,8 +16,9 @@ export class ParticleEffect {
   private readonly pool: ParticlePool;
   private readonly particleSystem: ParticleSystem;
   private readonly spawnFramespan: number;
+  private readonly timer: Timer;
+
   readonly particlesCount: number;
-  readonly timer: Timer;
 
   frameDelta = 0;
   spawnCounter = 0;
@@ -33,10 +33,9 @@ export class ParticleEffect {
     particleSystem,
     particlesCount,
     spawnFramespan,
-    timer,
   }: TConstructorArguments) {
     this.pool = new ParticlePool();
-    this.timer = timer;
+    this.timer = new Timer(false);
     this.particleSystem = particleSystem;
     this.particlesCount = particlesCount;
     this.spawnFramespan = spawnFramespan;
@@ -55,18 +54,24 @@ export class ParticleEffect {
     }
   }
 
-  launchParticleSystem (): void {
-    this.particleSystem.launch(this.pool);
+  start (): void {
+    this.timer.start();
+  }
+
+  stop (): void {
+    this.timer.stop();
   }
 
   update(): void {
+    if (!this.timer.isRunning) return;
+
     const time = Date.now() * 0.001;
     this.frameDelta += this.timer.getDelta();
 
     if (this.spawnFramespan) {
       this.spawnCounter += 1;
       if (this.spawnCounter > this.spawnFramespan) {
-        this.launchParticleSystem();
+        this.particleSystem.launch(this.pool);
         this.spawnCounter = 0;
       }
     }
