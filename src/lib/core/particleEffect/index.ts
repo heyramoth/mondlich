@@ -15,10 +15,10 @@ const MAX_FPS = 60;
 export class ParticleEffect {
 
   private readonly pool: ParticlePool;
-  private readonly timer: Timer;
   private readonly particleSystem: ParticleSystem;
   private readonly spawnFramespan: number;
   readonly particlesCount: number;
+  readonly timer: Timer;
 
   frameDelta = 0;
   spawnCounter = 0;

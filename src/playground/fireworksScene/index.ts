@@ -1,23 +1,12 @@
 import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
-import { loadImage, Timer } from '@/lib/utils';
-import {
-  BaseShaderProgram,
-  RenderData,
-  MondlichRenderer,
-} from '@/lib/render';
+
+import { MondlichRenderer } from '@/lib/render';
 import { CanvasAdapter } from '@/lib/adapters';
-import {
-  vsSource,
-  fsSource,
-  BUFFER_CONFIGS,
-  IMAGE_SRC,
-  PARTICLES_COUNT,
-} from './domain/constants';
 import { glMatrix } from 'gl-matrix';
-import { ParticleEffect } from '@/lib/core';
-import { FireworkSystem } from '@/lib/core/particleSystem/behaviors';
 import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { UserInput } from '@/lib/utils/userInput';
+import { createFirework } from './application/createFirework';
+import { createXZPlane } from './application/createXZPlane';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -39,7 +28,6 @@ export const DEFAULT_CANVAS_SIZE = {
   height: 1080,
 };
 
-
 export const setupFireworksScene = async (): Promise<void> => {
 
   const { gl, canvas } = setupWebGLCanvas({
@@ -52,66 +40,16 @@ export const setupFireworksScene = async (): Promise<void> => {
     ...DEFAULT_CANVAS_SIZE,
   });
 
-  const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
+  const {
+    firework,
+    fireworkRenderData,
+    fireworkShader,
+  } = await createFirework(gl);
 
-  const fireworkTimer = new Timer(false);
-
-  const firework = new ParticleEffect({
-    particlesCount: PARTICLES_COUNT,
-    particleSystem: new FireworkSystem(),
-    spawnFramespan: 10,
-    timer: fireworkTimer,
-  });
-
-  const renderData = new RenderData({
-    gl,
-    shaderProgram,
-    elementsCount: firework.particlesCount,
-  });
-
-  renderData.createVertexBuffers([
-    {
-      name: 'aPosition',
-      data: firework.data.positions,
-      attributeConfig: {
-        size: BUFFER_CONFIGS.aPosition.attrSize,
-        type: gl.FLOAT,
-        normalized: false,
-        stride: BUFFER_CONFIGS.aPosition.attrSize * Float32Array.BYTES_PER_ELEMENT,
-        offset: 0,
-      },
-    },
-    {
-      name: 'aColor',
-      data: firework.data.colors,
-      attributeConfig: {
-        size: BUFFER_CONFIGS.aColor.attrSize,
-        type: gl.FLOAT,
-        normalized: false,
-        stride: BUFFER_CONFIGS.aColor.attrSize * Float32Array.BYTES_PER_ELEMENT,
-        offset: 0,
-      },
-    },
-    {
-      name: 'aSize',
-      data: firework.data.sizes,
-      attributeConfig: {
-        size: BUFFER_CONFIGS.aSize.attrSize,
-        type: gl.FLOAT,
-        normalized: false,
-        stride: BUFFER_CONFIGS.aSize.attrSize * Float32Array.BYTES_PER_ELEMENT,
-        offset: 0,
-      },
-    },
-  ]);
-
-  const htmlImage: HTMLImageElement = await loadImage(IMAGE_SRC);
-
-  renderData.createTexture({
-    name: 'u_pointTexture',
-    source: htmlImage,
-    unit: 0,
-  });
+  const {
+    planeRenderData,
+    planeShader,
+  } = createXZPlane(gl);
 
   const camera = new MondlichCamera({
     viewConfig: {
@@ -136,17 +74,26 @@ export const setupFireworksScene = async (): Promise<void> => {
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
-  fireworkTimer.start();
+  firework.timer.start();
 
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    mondlichRenderer.render({
-      renderData,
+    /*    mondlichRenderer.render({
+      renderData: fireworkRenderData,
       useAdapterUniforms: () => {
-        shaderProgram.setMat4('mWorld', camera.worldMatrix);
-        shaderProgram.setMat4('mView', camera.viewMatrix);
-        shaderProgram.setMat4('mProj', camera.projectionMatrix);
+        fireworkShader.setMat4('mWorld', camera.worldMatrix);
+        fireworkShader.setMat4('mView', camera.viewMatrix);
+        fireworkShader.setMat4('mProj', camera.projectionMatrix);
+      },
+    });*/
+
+    mondlichRenderer.render({
+      renderData: planeRenderData,
+      useAdapterUniforms: () => {
+        planeShader.setMat4('mWorld', camera.worldMatrix);
+        planeShader.setMat4('mView', camera.viewMatrix);
+        planeShader.setMat4('mProj', camera.projectionMatrix);
       },
     });
   };

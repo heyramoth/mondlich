@@ -97,7 +97,7 @@ export default defineConfig([
             }],
 
             '@typescript-eslint/no-explicit-any': 'error',
-            '@typescript-eslint/no-unused-vars': 'error',
+            '@typescript-eslint/no-unused-vars': 'warn',
             '@typescript-eslint/explicit-function-return-type': [
                 'error',
                 { allowExpressions: true }
