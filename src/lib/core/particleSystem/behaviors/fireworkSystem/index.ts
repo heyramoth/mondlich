@@ -7,8 +7,6 @@ import { FireworkSystemSettings } from './domain/fireworkSystemSettings';
 export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
   readonly settings: FireworkSystemSettings = new FireworkSystemSettings();
 
-  maxSize = 10;
-
   shellEffect(
     particle: Particle,
     dt: number,
@@ -206,8 +204,8 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     const launchPos = this.settings.origin;
     const color: vec3 = this.settings.color;
 
-    const size = 20 + Math.random() * Math.min(350, this.maxSize);
-    this.maxSize += 10;
+    const size = this.settings.minParticleSize + Math.random() * Math.min(350, this.settings.maxParticleSize);
+    this.settings.maxParticleSize += this.settings.maxParticleSizeStep;
 
     const seed = Math.random() * 4 | 0;
 
