@@ -20,9 +20,8 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
   const firework = new ParticleEffect({
     particlesCount: PARTICLES_COUNT,
     particleSystem: new FireworkSystem(),
-    spawnFramespan: 5,
+    spawnFramespan: 10,
   });
-
 
   const fireworkRenderData = new RenderData({
     gl,

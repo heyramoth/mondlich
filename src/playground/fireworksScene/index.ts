@@ -6,6 +6,8 @@ import { glMatrix, vec3 } from 'gl-matrix';
 import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { UserInput } from '@/lib/utils/userInput';
 import { createFirework } from './application/createFirework';
+import { Timer } from '@/lib/utils';
+import { MondlichMath } from '@/lib/utils/mondlichMath';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -45,21 +47,32 @@ export const setupFireworksScene = async (): Promise<void> => {
     fireworkShader,
   } = await createFirework(gl);
 
+  firework.settings.origin = [0, 0, -500];
+
+  const timer = new Timer(false);
+
   const updateFireworkSettings = () => {
+    const elapsedTime = timer.getElapsedTime();
     firework.settings.color = vec3.fromValues(Math.random(), Math.random(), Math.random());
+    firework.settings.origin = MondlichMath.rotatePointAroundAxis({
+      point: firework.settings.origin,
+      axisOrigin: [0, 0, 0],
+      axisDirection: [0, 1, 0],
+      rotationAngle: elapsedTime,
+    });
   };
 
   const camera = new MondlichCamera({
     viewConfig: {
-      eye: [0, 2000, 1000],
+      eye: [0, 1500, 1000],
       center: [0, 1100, 0], // lookAt
       up: [0, 1, 0],
     },
     projectionConfig: {
-      fovy: glMatrix.toRadian(45),
+      fovy: glMatrix.toRadian(100),
       aspect: canvas.width / canvas.height,
       nearPlane: 0.1,
-      farPlane: 20000.0,
+      farPlane: 50000.0,
     },
   });
 
@@ -85,6 +98,7 @@ export const setupFireworksScene = async (): Promise<void> => {
     });
   };
 
+  timer.start();
   firework.start();
 
   const loop = (): void => {
