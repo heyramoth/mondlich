@@ -2,17 +2,12 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { vec3 } from 'gl-matrix';
 import { Particle } from '@/lib/core/particle';
 import { ParticlePool } from '@/lib/core/particlePool';
-import { TColor } from '@/lib/core/domain/types';
 import { FireworkSystemSettings } from './domain/fireworkSystemSettings';
 
 export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
-  private settings: FireworkSystemSettings = new FireworkSystemSettings();
+  readonly settings: FireworkSystemSettings = new FireworkSystemSettings();
 
   maxSize = 10;
-
-  getSettings(): FireworkSystemSettings {
-    return this.settings;
-  }
 
   shellEffect(
     particle: Particle,
@@ -67,7 +62,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     dt: number,
     time: number,
     seed: number,
-    color: TColor,
+    color: vec3,
     pool: ParticlePool,
   ): void {
     let r = 0;
@@ -150,7 +145,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     dt: number,
     time: number,
     seed: number,
-    color: TColor,
+    color: vec3,
     size: number,
     pool: ParticlePool,
   ): void {
@@ -211,7 +206,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     const launchPos = vec3.fromValues(0.0, 0.0, 0.0);
 
     const seed = Math.random() * 4 | 0;
-    const color: TColor = [Math.random(), Math.random(), Math.random()];
+    const color: vec3 = vec3.fromValues(Math.random(), Math.random(), Math.random());
 
     const size = 20 + Math.random() * Math.min(350, this.maxSize);
     this.maxSize += 10;

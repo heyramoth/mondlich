@@ -51,7 +51,7 @@ const randDecay = (): number => getInInterval(config.decay);
 
 export class FountainSystem extends ParticleSystem<FountainSystemSettings> {
 
-  private settings: FountainSystemSettings = new FountainSystemSettings();
+  readonly settings: FountainSystemSettings = new FountainSystemSettings();
 
   maxSize = 10;
   origin = vec3.fromValues(0,0,0);

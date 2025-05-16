@@ -1,4 +1,4 @@
-import { TColor } from '@/lib/core/domain/types';
+import { vec3 } from 'gl-matrix';
 
 export class Particle {
   i: number;
@@ -11,7 +11,7 @@ export class Particle {
   mass: number;
   alive: boolean;
   size: number;
-  color: TColor;
+  color: vec3;
   decay: number;
   life: number;
   gravity: number;

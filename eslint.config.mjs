@@ -102,7 +102,7 @@ export default defineConfig([
                 'off',
                 { allowExpressions: true }
             ],
-            '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }],
+            '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions', 'constructors'] }],
 
             /* Warn level */
             '@typescript-eslint/ban-ts-comment': 'warn',

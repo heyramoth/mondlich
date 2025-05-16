@@ -1,6 +1,5 @@
 import { vec3 } from 'gl-matrix';
 import { ParticleSystem } from '@/lib/core/particleSystem';
-import { TColor } from '@/lib/core/domain/types';
 import { generateRandsign } from '../domain/generateRandsign';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { FireSystemSettings } from './domain/fireSystemSettings';
@@ -18,7 +17,7 @@ const config = {
     min: 20,
     max: 60,
   },
-  color: [0.0, 1.0, 1.0] as TColor,
+  color: [0.0, 1.0, 1.0],
   mass:  0.002,
   x: {
     min: 5,
@@ -35,13 +34,9 @@ const config = {
 };
 
 export class FireSystem extends ParticleSystem<FireSystemSettings> {
-  private settings: FireSystemSettings = new FireSystemSettings();
-  maxSize = 10;
-  origin: vec3;
+  readonly settings: FireSystemSettings = new FireSystemSettings();
 
-  getSettings(): FireSystemSettings {
-    return this.settings;
-  }
+  origin: vec3;
 
   constructor(origin: vec3) {
     super();

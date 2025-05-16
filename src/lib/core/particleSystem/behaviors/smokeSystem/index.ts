@@ -35,7 +35,7 @@ const config = {
 };
 
 export class SmokeSystem extends ParticleSystem {
-  private settings: SmokeSystemSettings = new SmokeSystemSettings();
+  readonly settings: SmokeSystemSettings = new SmokeSystemSettings();
 
   origin: vec3;
 

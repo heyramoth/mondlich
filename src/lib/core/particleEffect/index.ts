@@ -98,7 +98,7 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
   }
 
-  getSystemSettings(): TSystemSettings<T> {
-    return this.particleSystem.getSettings() as TSystemSettings<T>;
+  get settings(): TSystemSettings<T> {
+    return this.particleSystem.settings as TSystemSettings<T>;
   }
 }
