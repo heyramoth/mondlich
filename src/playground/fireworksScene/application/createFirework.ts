@@ -23,7 +23,6 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
     spawnFramespan: 5,
   });
 
-  const test = firework.settings; //  FireworkSystemSettings
 
   const fireworkRenderData = new RenderData({
     gl,

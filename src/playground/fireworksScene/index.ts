@@ -2,7 +2,7 @@ import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 
 import { MondlichRenderer } from '@/lib/render';
 import { CanvasAdapter } from '@/lib/adapters';
-import { glMatrix } from 'gl-matrix';
+import { glMatrix, vec3 } from 'gl-matrix';
 import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { UserInput } from '@/lib/utils/userInput';
 import { createFirework } from './application/createFirework';
@@ -45,17 +45,21 @@ export const setupFireworksScene = async (): Promise<void> => {
     fireworkShader,
   } = await createFirework(gl);
 
+  const updateFireworkSettings = () => {
+    firework.settings.color = vec3.fromValues(Math.random(), Math.random(), Math.random());
+  };
+
   const camera = new MondlichCamera({
     viewConfig: {
-      eye: [0, 1500, 1000],
-      center: [0, 800, 0], // lookAt
+      eye: [0, 2000, 1000],
+      center: [0, 1100, 0], // lookAt
       up: [0, 1, 0],
     },
     projectionConfig: {
       fovy: glMatrix.toRadian(45),
       aspect: canvas.width / canvas.height,
       nearPlane: 0.1,
-      farPlane: 10000.0,
+      farPlane: 20000.0,
     },
   });
 
@@ -84,6 +88,7 @@ export const setupFireworksScene = async (): Promise<void> => {
   firework.start();
 
   const loop = (): void => {
+    updateFireworkSettings();
     firework.update();
     userInput.update();
 

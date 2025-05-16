@@ -206,7 +206,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     const launchPos = vec3.fromValues(0.0, 0.0, 0.0);
 
     const seed = Math.random() * 4 | 0;
-    const color: vec3 = vec3.fromValues(Math.random(), Math.random(), Math.random());
+    const color: vec3 = this.settings.color;
 
     const size = 20 + Math.random() * Math.min(350, this.maxSize);
     this.maxSize += 10;
