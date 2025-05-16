@@ -6,12 +6,12 @@ import {
   PARTICLES_COUNT,
   vsSource,
 } from '@/playground/fireworksScene/domain/constants';
-import { loadImage, Timer } from '@/lib/utils';
+import { loadImage } from '@/lib/utils';
 import { ParticleEffect } from '@/lib/core';
-import { FireworkSystem } from '@/lib/core/particleSystem/behaviors';
+import { FireSystem, FireworkSystem } from '@/lib/core/particleSystem/behaviors';
 
 export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
-  firework: ParticleEffect,
+  firework: ParticleEffect<FireworkSystem>,
   fireworkRenderData: RenderData,
   fireworkShader: BaseShaderProgram,
 }> => {
@@ -22,6 +22,15 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
     particleSystem: new FireworkSystem(),
     spawnFramespan: 10,
   });
+
+  const fire = new ParticleEffect({
+    particlesCount: PARTICLES_COUNT,
+    particleSystem: new FireSystem([0,0,0]),
+    spawnFramespan: 10,
+  });
+
+  const test = firework.getSystemSettings(); //  FireworkSystemSettings
+  const test2 = fire.getSystemSettings(); //  FireworkSystemSettings
 
   const fireworkRenderData = new RenderData({
     gl,

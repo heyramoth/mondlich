@@ -3,6 +3,7 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { Particle } from '@/lib/core/particle';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { getInInterval } from '@/lib/core/domain/getInInterval';
+import { FountainSystemSettings } from './domain/fountainSystemSettings';
 
 interface IColor {
   r: number,
@@ -48,13 +49,20 @@ const randSize = (): number => getInInterval(config.size);
 
 const randDecay = (): number => getInInterval(config.decay);
 
-export class FountainSystem extends ParticleSystem{
+export class FountainSystem extends ParticleSystem<FountainSystemSettings> {
+
+  private settings: FountainSystemSettings = new FountainSystemSettings();
+
   maxSize = 10;
   origin = vec3.fromValues(0,0,0);
 
   constructor(origin: vec3) {
     super();
     this.origin = origin;
+  }
+
+  getSettings(): FountainSystemSettings {
+    return this.settings;
   }
 
   shellEffect(

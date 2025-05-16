@@ -3,6 +3,7 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { TColor } from '@/lib/core/domain/types';
 import { generateRandsign } from '../domain/generateRandsign';
 import { ParticlePool } from '@/lib/core/particlePool';
+import { FireSystemSettings } from './domain/fireSystemSettings';
 
 const config = {
   size: {
@@ -33,9 +34,14 @@ const config = {
   },
 };
 
-export class FireSystem extends ParticleSystem {
+export class FireSystem extends ParticleSystem<FireSystemSettings> {
+  private settings: FireSystemSettings = new FireSystemSettings();
   maxSize = 10;
   origin: vec3;
+
+  getSettings(): FireSystemSettings {
+    return this.settings;
+  }
 
   constructor(origin: vec3) {
     super();

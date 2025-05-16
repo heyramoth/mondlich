@@ -3,6 +3,7 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { Particle } from '@/lib/core/particle';
 import { generateRandsign } from '../domain/generateRandsign';
+import { SmokeSystemSettings } from './domain/smokeSystemSettings';
 
 const config = {
   size: {
@@ -34,11 +35,17 @@ const config = {
 };
 
 export class SmokeSystem extends ParticleSystem {
+  private settings: SmokeSystemSettings = new SmokeSystemSettings();
+
   origin: vec3;
 
   constructor(origin: vec3) {
     super();
     this.origin = origin;
+  }
+
+  getSettings(): SmokeSystemSettings {
+    return this.settings;
   }
 
   launch(pool: ParticlePool): void {

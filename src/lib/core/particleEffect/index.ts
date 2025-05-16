@@ -2,19 +2,20 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { Timer } from '@/lib/utils';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { Particle } from '@/lib/core/particle';
+import { MAX_FPS } from '@/lib/domain/constants';
 
-type TConstructorArguments = {
-  particleSystem: ParticleSystem,
+type TSystemSettings<T> = T extends ParticleSystem<infer S> ? S : never;
+
+type TConstructorArguments<T extends ParticleSystem> = {
+  particleSystem: T,
   particlesCount: number,
   spawnFramespan: number,
 };
 
-const MAX_FPS = 60;
-
-export class ParticleEffect {
+export class ParticleEffect<T extends ParticleSystem> {
 
   private readonly pool: ParticlePool;
-  private readonly particleSystem: ParticleSystem;
+  private readonly particleSystem: T;
   private readonly spawnFramespan: number;
   private readonly timer: Timer;
 
@@ -33,7 +34,7 @@ export class ParticleEffect {
     particleSystem,
     particlesCount,
     spawnFramespan,
-  }: TConstructorArguments) {
+  }: TConstructorArguments<T>) {
     this.pool = new ParticlePool();
     this.timer = new Timer(false);
     this.particleSystem = particleSystem;
@@ -95,5 +96,9 @@ export class ParticleEffect {
       }
       this.frameDelta -= 1 / MAX_FPS;
     }
+  }
+
+  getSystemSettings(): TSystemSettings<T> {
+    return this.particleSystem.getSettings() as TSystemSettings<T>;
   }
 }

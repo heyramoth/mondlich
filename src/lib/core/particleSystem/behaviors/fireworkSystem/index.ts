@@ -3,9 +3,16 @@ import { vec3 } from 'gl-matrix';
 import { Particle } from '@/lib/core/particle';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { TColor } from '@/lib/core/domain/types';
+import { FireworkSystemSettings } from './domain/fireworkSystemSettings';
 
-export class FireworkSystem extends ParticleSystem {
+export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
+  private settings: FireworkSystemSettings = new FireworkSystemSettings();
+
   maxSize = 10;
+
+  getSettings(): FireworkSystemSettings {
+    return this.settings;
+  }
 
   shellEffect(
     particle: Particle,
