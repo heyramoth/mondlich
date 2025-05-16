@@ -1,6 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { Timer } from '@/lib/utils/timer';
+import { MondlichMath } from '@/lib/utils/mondlichMath';
 
 
 export class UserInput {
@@ -10,6 +11,7 @@ export class UserInput {
   private isDragging: boolean;
   private lastX: number;
   private lastY: number;
+  private worldUpVector: vec3;
 
   private moveSpeed: number;
   private rotateSpeed: number;
@@ -20,11 +22,13 @@ export class UserInput {
     sensitivity = 1.0,
     moveSpeed = 100.0,
     rotateSpeed = 2.0,
+    worldUpVector = vec3.fromValues(0,1,0),
   }: {
     camera: MondlichCamera,
     sensitivity?: number,
     moveSpeed?: number,
     rotateSpeed?: number,
+    worldUpVector?: vec3,
   }) {
     this.camera = camera;
     this.timer = new Timer();
@@ -32,6 +36,7 @@ export class UserInput {
     this.isDragging = false;
     this.lastX = 0;
     this.lastY = 0;
+    this.worldUpVector = worldUpVector;
 
     this.moveSpeed = moveSpeed;
     this.rotateSpeed = rotateSpeed;
@@ -107,53 +112,31 @@ export class UserInput {
       this.camera.moveLookAt(move);
     }
     if (this.keys['a']) {
-      this.rotateCamera(-this.rotateSpeed * deltaTime);
+      this.rotateCamera(this.rotateSpeed * deltaTime);
     }
     if (this.keys['d']) {
-      this.rotateCamera(this.rotateSpeed * deltaTime);
+      this.rotateCamera(-this.rotateSpeed * deltaTime);
     }
   }
 
   private rotateCamera(angle: number): void {
     const eye = vec3.clone(this.camera.eyePosition);
     const center = vec3.clone(this.camera.lookAtPoint);
-    const up = vec3.clone(this.camera.upVector);
 
-    // normalize the rotation axis (camera's up vector)
-    const axis = vec3.create();
-    vec3.normalize(axis, up);
+    const forward = vec3.create();
+    vec3.subtract(forward, center, eye);
 
-    // vector from center to eye
-    const toEye = vec3.create();
-    vec3.subtract(toEye, eye, center);
+    const rotatedForward = MondlichMath.rotatePointAroundAxis({
+      point: forward,
+      axisOrigin: [0, 0, 0], // rotate around origin since we're rotating the vector
+      axisDirection: this.worldUpVector,
+      rotationAngle: angle,
+    });
 
-    // apply rodrigues' rotation formula
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
+    const newCenter = vec3.create();
+    vec3.add(newCenter, eye, rotatedForward);
 
-    // term1: v * cos
-    const term1 = vec3.create();
-    vec3.scale(term1, toEye, cos);
-
-    // term2: (k × v) * sin
-    const cross = vec3.create();
-    vec3.cross(cross, axis, toEye);
-    const term2 = vec3.create();
-    vec3.scale(term2, cross, sin);
-
-    // term3: k * (k · v) * (1 - cos)
-    const dot = vec3.dot(axis, toEye);
-    const term3 = vec3.create();
-    vec3.scale(term3, axis, dot * (1 - cos));
-
-    const rotated = vec3.create();
-    vec3.add(rotated, term1, term2);
-    vec3.add(rotated, rotated, term3);
-
-    // add back center position
-    vec3.add(rotated, rotated, center);
-
-    this.camera.setEyePosition(rotated);
+    this.camera.setLookAt(newCenter);
   }
 
   private onKeyDown(event: KeyboardEvent): void {

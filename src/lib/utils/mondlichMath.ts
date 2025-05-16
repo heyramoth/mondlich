@@ -36,9 +36,9 @@ export class MondlichMath {
     const transformationMat = mat4.create();
 
     // translate to origin, rotate, then translate back
-    mat4.translate(transformationMat, transformationMat, axisOrigin);
-    mat4.fromRotationTranslation(transformationMat, rotationQuat, [0, 0, 0]);
     mat4.translate(transformationMat, transformationMat, [-axisOrigin[0], -axisOrigin[1], -axisOrigin[2]]);
+    mat4.fromRotationTranslation(transformationMat, rotationQuat, [0, 0, 0]);
+    mat4.translate(transformationMat, transformationMat, axisOrigin);
 
     const rotatedPoint = vec3.create();
     vec3.transformMat4(rotatedPoint, point, transformationMat);
