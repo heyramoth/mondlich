@@ -1,8 +1,12 @@
 export abstract class EngineAdapter {
-  abstract getCameraMatrix(): Float32Array;
-  abstract getViewportSize(): {
+  abstract get cameraMatrix(): Float32Array;
+  abstract get cameraWorldMatrix(): Float32Array;
+  abstract get cameraViewMatrix(): Float32Array;
+  abstract get cameraProjectionMatrix(): Float32Array;
+  abstract get viewportSize(): {
     width: number,
     height: number,
   };
+
   abstract executeInGLContext(callback: (gl: WebGLRenderingContext) => void): void;
 }

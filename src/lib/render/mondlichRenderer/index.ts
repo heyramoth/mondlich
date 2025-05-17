@@ -30,8 +30,8 @@ export class MondlichRenderer {
     this.adapter.executeInGLContext((gl: WebGLRenderingContext) => {
       renderData.shaderProgram.use();
 
-      const viewport = this.adapter!.getViewportSize();
-      const cameraMatrix = this.adapter!.getCameraMatrix();
+      const viewport = this.adapter!.viewportSize;
+      const cameraMatrix = this.adapter!.cameraMatrix;
 
       useAdapterUniforms?.({
         cameraMatrix,
