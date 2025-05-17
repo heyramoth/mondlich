@@ -1,2 +1,2 @@
 export { EngineAdapter } from './engineAdapter';
-export { CanvasAdapter } from './canvasAdapter';
+export { MondlichAdapter } from './mondlichAdapter';

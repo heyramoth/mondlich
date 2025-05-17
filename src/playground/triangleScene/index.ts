@@ -1,4 +1,4 @@
-import { CanvasAdapter } from '@/lib/adapters/canvasAdapter';
+import { MondlichAdapter } from '@/lib/adapters/mondlichAdapter';
 import {
   BaseShaderProgram,
   RenderData,
@@ -54,7 +54,7 @@ export const setupTriangleScene = (): void => {
     ...DEFAULT_CANVAS_SIZE,
   });
 
-  const adapter = new CanvasAdapter(gl, canvas);
+  const adapter = new MondlichAdapter(gl, canvas);
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
 

@@ -1,6 +1,6 @@
 import { EngineAdapter } from '@/lib/adapters/engineAdapter';
 
-export class CanvasAdapter implements EngineAdapter {
+export class MondlichAdapter implements EngineAdapter {
   constructor(
     private readonly gl: WebGL2RenderingContext,
     private readonly canvas: HTMLCanvasElement,

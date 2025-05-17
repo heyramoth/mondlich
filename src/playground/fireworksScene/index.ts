@@ -1,7 +1,7 @@
 import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 
 import { MondlichRenderer } from '@/lib/render';
-import { CanvasAdapter } from '@/lib/adapters';
+import { MondlichAdapter } from '@/lib/adapters';
 import { glMatrix, vec3 } from 'gl-matrix';
 import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { UserInput } from '@/lib/utils/userInput';
@@ -81,7 +81,7 @@ export const setupFireworksScene = async (): Promise<void> => {
     sensitivity: 1,
   });
 
-  const adapter = new CanvasAdapter(gl, canvas);
+  const adapter = new MondlichAdapter(gl, canvas);
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
