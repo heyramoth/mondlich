@@ -1,8 +1,12 @@
+import { EngineAdapter } from '@/lib/adapters';
+import { ShaderUniformsManager } from './domain/shaderUniformsManager';
+
 export class BaseShaderProgram {
   #program: WebGLProgram | null = null;
   #vertexShader: WebGLShader | null = null;
   #fragmentShader: WebGLShader | null = null;
   #uniformLocations: Map<PropertyKey, WebGLUniformLocation> = new Map();
+  #uniformsManager?: ShaderUniformsManager;
 
   constructor(
     private readonly vertexShaderSource: string,
@@ -12,6 +16,7 @@ export class BaseShaderProgram {
     this.#initShaders();
     this.#compileShaders();
     this.#createProgram();
+    this.use();
     this.#cacheUniformLocations();
   }
 
@@ -78,8 +83,6 @@ export class BaseShaderProgram {
     if (!this.#program) {
       throw new Error('Program not found');
     }
-
-    this.use();
 
     // total number of active uniforms
     const numUniforms = this.glContext.getProgramParameter(
@@ -168,19 +171,30 @@ export class BaseShaderProgram {
     this.glContext.uniform1fv(location, value);
   };
 
+  setUniformsManager(manager: ShaderUniformsManager): void {
+    this.#uniformsManager = manager;
+  }
+
+  updateUniforms(adapter: EngineAdapter): void {
+    this.#uniformsManager?.updateUniforms({
+      adapter,
+      shader: this,
+    });
+  }
+
   get program(): WebGLProgram | null{
     return this.#program;
   }
 
-  use = (): void => {
+  use (): void {
     this.glContext.useProgram(this.#program);
   };
 
-  disable = (): void => {
+  disable (): void {
     this.glContext.useProgram(null);
   };
 
-  cleanup = (): void => {
+  cleanup(): void {
     if (this.#program) {
       this.glContext.deleteProgram(this.#program);
       this.#program = null;

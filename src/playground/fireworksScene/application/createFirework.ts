@@ -9,30 +9,45 @@ import {
 import { loadImage } from '@/lib/utils';
 import { ParticleEffect } from '@/lib/core';
 import { FireworkSystem } from '@/lib/core/particleSystem/behaviors';
+import { ShaderUniformsManager } from '@/lib/render/baseShaderProgram/domain/shaderUniformsManager';
+import { EngineAdapter } from '@/lib/adapters';
+
+export class FireworkShaderUniformsManager extends ShaderUniformsManager {
+  updateUniforms({ adapter, shader }: {
+    adapter: EngineAdapter,
+    shader: BaseShaderProgram,
+  }): void {
+    shader.setMat4('mWorld', adapter.cameraWorldMatrix);
+    shader.setMat4('mView', adapter.cameraViewMatrix);
+    shader.setMat4('mProj', adapter.cameraProjectionMatrix);
+  }
+}
 
 export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
   firework: ParticleEffect<FireworkSystem>,
   fireworkRenderData: RenderData,
   fireworkShader: BaseShaderProgram,
 }> => {
-  const fireworkShader = new BaseShaderProgram(vsSource, fsSource, gl);
+  const shader = new BaseShaderProgram(vsSource, fsSource, gl);
+  const cameraUniformsManager = new FireworkShaderUniformsManager();
+  shader.setUniformsManager(cameraUniformsManager);
 
-  const firework = new ParticleEffect({
+  const effect = new ParticleEffect({
     particlesCount: PARTICLES_COUNT,
     particleSystem: new FireworkSystem(),
     spawnFramespan: 5,
   });
 
-  const fireworkRenderData = new RenderData({
+  const renderData = new RenderData({
     gl,
-    shaderProgram: fireworkShader,
-    elementsCount: firework.particlesCount,
+    shaderProgram: shader,
+    elementsCount: effect.particlesCount,
   });
 
-  fireworkRenderData.createVertexBuffers([
+  renderData.createVertexBuffers([
     {
       name: 'aPosition',
-      data: firework.data.positions,
+      data: effect.data.positions,
       attributeConfig: {
         size: BUFFER_CONFIGS.aPosition.attrSize,
         type: gl.FLOAT,
@@ -43,7 +58,7 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
     },
     {
       name: 'aColor',
-      data: firework.data.colors,
+      data: effect.data.colors,
       attributeConfig: {
         size: BUFFER_CONFIGS.aColor.attrSize,
         type: gl.FLOAT,
@@ -54,7 +69,7 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
     },
     {
       name: 'aSize',
-      data: firework.data.sizes,
+      data: effect.data.sizes,
       attributeConfig: {
         size: BUFFER_CONFIGS.aSize.attrSize,
         type: gl.FLOAT,
@@ -67,15 +82,15 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
 
   const htmlImage: HTMLImageElement = await loadImage(IMAGE_SRC);
 
-  fireworkRenderData.createTexture({
+  renderData.createTexture({
     name: 'u_pointTexture',
     source: htmlImage,
     unit: 0,
   });
 
   return {
-    firework,
-    fireworkRenderData,
-    fireworkShader,
+    firework: effect,
+    fireworkRenderData: renderData,
+    fireworkShader: shader,
   };
 };

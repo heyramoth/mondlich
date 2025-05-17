@@ -9,6 +9,9 @@ import {
 import { fsSource, vsSource } from './domain/constants';
 import { MondlichAdapter } from '@/lib/adapters/mondlichAdapter';
 import { MondlichEngine } from '@/lib/engine';
+import { ShaderUniformsManager } from '@/lib/render/baseShaderProgram/domain/shaderUniformsManager';
+import { EngineAdapter } from '@/lib/adapters';
+import { FireworkShaderUniformsManager } from '@/playground/fireworksScene/application/createFirework';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -33,6 +36,15 @@ const POSITIONS_CONFIG = {
   attrSize: 3,
 };
 
+export class BaseUniformsManager extends ShaderUniformsManager {
+  updateUniforms({ adapter, shader }: {
+    adapter: EngineAdapter,
+    shader: BaseShaderProgram,
+  }): void {
+    shader.setMat4('mCamera', adapter.cameraMatrix);
+  }
+}
+
 export const setupSingleTextureScene = async (): Promise<void> => {
 
   const { gl, canvas } = setupWebGLCanvas({
@@ -46,6 +58,8 @@ export const setupSingleTextureScene = async (): Promise<void> => {
   });
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
+  const uniformsManager = new BaseUniformsManager();
+  shaderProgram.setUniformsManager(uniformsManager);
 
   const renderData = new RenderData({
     gl,
@@ -81,12 +95,7 @@ export const setupSingleTextureScene = async (): Promise<void> => {
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    mondlichRenderer.render({
-      renderData,
-      useAdapterUniforms: ({ cameraMatrix }) => {
-        shaderProgram.setMat4('mCamera', cameraMatrix);
-      },
-    });
+    mondlichRenderer.render(renderData);
     requestAnimationFrame(render);
   };
 

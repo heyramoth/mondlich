@@ -99,7 +99,7 @@ export const setupTriangleScene = (): void => {
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    mondlichRenderer.render({ renderData });
+    mondlichRenderer.render(renderData);
 
     requestAnimationFrame(render);
   };

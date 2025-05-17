@@ -6,31 +6,12 @@ export class MondlichRenderer {
     this.adapter = adapter;
   }
 
-  render({
-    renderData,
-    useAdapterUniforms,
-  }: {
-    renderData: RenderData,
-    useAdapterUniforms?: (args: {
-      cameraMatrix: Float32Array,
-      viewport: {
-        height: number,
-        width: number,
-      },
-    }) => void,
-  }): void {
+  render(renderData: RenderData): void {
     if (!this.adapter) return;
 
     this.adapter.executeInGLContext((gl: WebGLRenderingContext) => {
       renderData.shaderProgram.use();
-
-      const viewport = this.adapter.viewportSize;
-      const cameraMatrix = this.adapter.cameraMatrix;
-
-      useAdapterUniforms?.({
-        cameraMatrix,
-        viewport,
-      });
+      renderData.shaderProgram.updateUniforms(this.adapter);
 
       this.draw({
         gl,

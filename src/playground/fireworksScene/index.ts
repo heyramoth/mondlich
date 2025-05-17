@@ -75,14 +75,7 @@ export const setupFireworksScene = async (): Promise<void> => {
   const render = (): void => {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    mondlichRenderer.render({
-      renderData: fireworkRenderData,
-      useAdapterUniforms: () => {
-        fireworkShader.setMat4('mWorld', engine.camera.worldMatrix);
-        fireworkShader.setMat4('mView', engine.camera.viewMatrix);
-        fireworkShader.setMat4('mProj', engine.camera.projectionMatrix);
-      },
-    });
+    mondlichRenderer.render(fireworkRenderData);
   };
 
   timer.start();
