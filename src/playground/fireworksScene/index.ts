@@ -2,12 +2,12 @@ import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 
 import { MondlichRenderer } from '@/lib/render';
 import { MondlichAdapter } from '@/lib/adapters';
-import { glMatrix, vec3 } from 'gl-matrix';
-import { MondlichCamera } from '@/lib/utils/mondlichCamera';
+import { vec3 } from 'gl-matrix';
 import { UserInput } from '@/lib/utils/userInput';
 import { createFirework } from './application/createFirework';
 import { Timer } from '@/lib/utils';
 import { MondlichMath } from '@/lib/utils/mondlichMath';
+import { MondlichEngine } from '@/lib/engine';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -62,26 +62,13 @@ export const setupFireworksScene = async (): Promise<void> => {
     });
   };
 
-  const camera = new MondlichCamera({
-    viewConfig: {
-      eye: [0, 1500, 1000],
-      center: [0, 1100, 0], // lookAt
-      up: [0, 1, 0],
-    },
-    projectionConfig: {
-      fovy: glMatrix.toRadian(100),
-      aspect: canvas.width / canvas.height,
-      nearPlane: 0.1,
-      farPlane: 50000.0,
-    },
-  });
+  const engine = new MondlichEngine(canvas);
+  const adapter = new MondlichAdapter(engine);
 
   const userInput = new UserInput({
-    camera,
+    camera: engine.camera,
     sensitivity: 1,
   });
-
-  const adapter = new MondlichAdapter(gl, canvas);
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
@@ -91,9 +78,9 @@ export const setupFireworksScene = async (): Promise<void> => {
     mondlichRenderer.render({
       renderData: fireworkRenderData,
       useAdapterUniforms: () => {
-        fireworkShader.setMat4('mWorld', camera.worldMatrix);
-        fireworkShader.setMat4('mView', camera.viewMatrix);
-        fireworkShader.setMat4('mProj', camera.projectionMatrix);
+        fireworkShader.setMat4('mWorld', engine.camera.worldMatrix);
+        fireworkShader.setMat4('mView', engine.camera.viewMatrix);
+        fireworkShader.setMat4('mProj', engine.camera.projectionMatrix);
       },
     });
   };

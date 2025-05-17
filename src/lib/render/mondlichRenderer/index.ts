@@ -2,13 +2,7 @@ import { RenderData } from '@/lib/render';
 import { EngineAdapter } from '@/lib/adapters';
 
 export class MondlichRenderer {
-  private adapter?: EngineAdapter;
-
-  constructor(adapter?: EngineAdapter) {
-    this.adapter = adapter;
-  }
-
-  setAdapter(adapter: EngineAdapter): void {
+  constructor(private readonly adapter: EngineAdapter) {
     this.adapter = adapter;
   }
 
@@ -30,8 +24,8 @@ export class MondlichRenderer {
     this.adapter.executeInGLContext((gl: WebGLRenderingContext) => {
       renderData.shaderProgram.use();
 
-      const viewport = this.adapter!.viewportSize;
-      const cameraMatrix = this.adapter!.cameraMatrix;
+      const viewport = this.adapter.viewportSize;
+      const cameraMatrix = this.adapter.cameraMatrix;
 
       useAdapterUniforms?.({
         cameraMatrix,

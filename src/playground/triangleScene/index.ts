@@ -8,6 +8,7 @@ import {
 import { fsSource, vsSource } from './domain/constants';
 import { setupWebGLCanvas } from '../domain/setupWebGLCanvas';
 import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
+import { MondlichEngine } from '@/lib/engine';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -54,7 +55,8 @@ export const setupTriangleScene = (): void => {
     ...DEFAULT_CANVAS_SIZE,
   });
 
-  const adapter = new MondlichAdapter(gl, canvas);
+  const engine = new MondlichEngine(canvas);
+  const adapter = new MondlichAdapter(engine);
 
   const shaderProgram = new BaseShaderProgram(vsSource, fsSource, gl);
 

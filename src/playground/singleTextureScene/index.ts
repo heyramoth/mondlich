@@ -8,6 +8,7 @@ import {
 } from '@/lib/render';
 import { fsSource, vsSource } from './domain/constants';
 import { MondlichAdapter } from '@/lib/adapters/mondlichAdapter';
+import { MondlichEngine } from '@/lib/engine';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -72,7 +73,8 @@ export const setupSingleTextureScene = async (): Promise<void> => {
     unit: 0,
   });
 
-  const adapter = new MondlichAdapter(gl, canvas);
+  const engine = new MondlichEngine(canvas);
+  const adapter = new MondlichAdapter(engine);
 
   const mondlichRenderer = new MondlichRenderer(adapter);
 
