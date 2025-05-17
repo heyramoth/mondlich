@@ -44,7 +44,6 @@ export const setupFireworksScene = async (): Promise<void> => {
   const {
     firework,
     fireworkRenderData,
-    fireworkShader,
   } = await createFirework(gl);
 
   firework.settings.origin = [0, 0, -500];

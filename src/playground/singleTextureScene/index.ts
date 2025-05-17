@@ -11,7 +11,6 @@ import { MondlichAdapter } from '@/lib/adapters/mondlichAdapter';
 import { MondlichEngine } from '@/lib/engine';
 import { ShaderUniformsManager } from '@/lib/render/baseShaderProgram/domain/shaderUniformsManager';
 import { EngineAdapter } from '@/lib/adapters';
-import { FireworkShaderUniformsManager } from '@/playground/fireworksScene/application/createFirework';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,

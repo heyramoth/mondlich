@@ -23,11 +23,7 @@ export class FireworkShaderUniformsManager extends ShaderUniformsManager {
   }
 }
 
-export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
-  firework: ParticleEffect<FireworkSystem>,
-  fireworkRenderData: RenderData,
-  fireworkShader: BaseShaderProgram,
-}> => {
+export const createFirework = async (gl: WebGL2RenderingContext)=> {
   const shader = new BaseShaderProgram(vsSource, fsSource, gl);
   const cameraUniformsManager = new FireworkShaderUniformsManager();
   shader.setUniformsManager(cameraUniformsManager);
@@ -91,6 +87,5 @@ export const createFirework = async (gl: WebGL2RenderingContext): Promise<{
   return {
     firework: effect,
     fireworkRenderData: renderData,
-    fireworkShader: shader,
   };
 };
