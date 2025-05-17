@@ -13,7 +13,8 @@ type TConstructorArguments<T extends ParticleSystem> = {
 };
 
 export class ParticleEffect<T extends ParticleSystem> {
-
+  private _isActive: boolean = true;
+  private _activeParticlesCount: number = 0;
   private readonly pool: ParticlePool;
   private readonly particleSystem: T;
   private readonly spawnFramespan: number;
@@ -48,19 +49,11 @@ export class ParticleEffect<T extends ParticleSystem> {
     this.initPool();
   }
 
-  initPool (): void {
+  private initPool (): void {
     for (let i = 0; i < this.particlesCount; i ++ ) {
       const p = new Particle(i);
       this.pool.particles.push(p);
     }
-  }
-
-  start (): void {
-    this.timer.start();
-  }
-
-  stop (): void {
-    this.timer.stop();
   }
 
   update(): void {
@@ -78,6 +71,7 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
 
     while(this.frameDelta >= 1 / MAX_FPS) {
+      this._activeParticlesCount = 0;
       for (let i = 0, posIdx = 0, colIdx = 0; i < this.particlesCount; i++) {
         const particle = this.pool.particles[i];
         if (!particle.alive) continue;
@@ -93,9 +87,37 @@ export class ParticleEffect<T extends ParticleSystem> {
         this.data.colors[colIdx++] = particle.color[2];
 
         this.data.sizes[i] = particle.size;
+
+        if (particle.alive) this._activeParticlesCount++;
       }
       this.frameDelta -= 1 / MAX_FPS;
     }
+  }
+
+  start (): void {
+    this.timer.start();
+  }
+
+  stop (): void {
+    this.timer.stop();
+  }
+
+  // defines if effect is visible
+  get isActive(): boolean {
+    return this._isActive;
+  }
+
+  set isActive(value: boolean) {
+    this._isActive = value;
+    if (value) {
+      this.start();
+      return;
+    }
+    this.stop();
+  }
+
+  get activeParticlesCount(): number {
+    return this._activeParticlesCount;
   }
 
   get settings(): TSystemSettings<T> {
