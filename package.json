@@ -1,13 +1,39 @@
 {
   "name": "mondlich",
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "type": "module",
   "description": "cross-engine vfx library",
+  "private": false,
+  "author": {
+    "name": "Elizaveta Zalomnova",
+    "nickname": "heyramoth",
+    "email": "ezalomnova@sfedu.ru",
+    "github": "https://github.com/heyramoth"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/heyramoth/mondlich.git"
   },
-  "author": "Elizaveta Zalomnova <heyramoth@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/heyramoth/mondlich/issues"
+  },
   "license": "MIT",
+  "keywords": [
+    "mondlich",
+    "tooltip",
+    "vfx",
+    "vfx-library",
+    "typescript",
+    "particle-effects"
+  ],
+  "module": "./dist/mondlich.es.js",
+  "types": "./dist/mondlich.es.d.ts",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "import": "./dist/mondlich.es.js"
+    }
+  },
   "scripts": {
     "serve": "vite",
     "build": "vite build",
@@ -44,9 +70,10 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.1",
     "vite": "^6.3.4",
+    "vite-plugin-dts": "^4.5.4",
     "vite-plugin-eslint": "^1.8.1"
   },
-  "dependencies": {
+  "peerDependencies": {
     "gl-matrix": "^3.4.3"
   }
 }
