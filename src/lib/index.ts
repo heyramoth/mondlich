@@ -12,3 +12,4 @@ export { BaseShaderProgram } from './render/baseShaderProgram';
 
 export { UserInput } from './utils/userInput';
 export { Timer } from './utils/timer';
+export { createWebGLCanvas } from './utils/createWebGLCanvas';

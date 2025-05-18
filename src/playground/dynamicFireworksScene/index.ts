@@ -1,8 +1,10 @@
-import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 import {
   MondlichAdapter,
   MondlichEngine,
-  ParticleEffectsManager, Timer, UserInput,
+  ParticleEffectsManager,
+  Timer,
+  UserInput,
+  createWebGLCanvas,
 } from '@/lib';
 
 import SparkImg from '@/assets/textures/spark.png';
@@ -31,7 +33,7 @@ export const DEFAULT_CANVAS_SIZE = {
 
 export const setupDynamicFireworksScene = async (): Promise<void> => {
 
-  const { gl, canvas } = setupWebGLCanvas({
+  const { gl, canvas } = createWebGLCanvas({
     ...DEFAULT_CANVAS_SIZE,
     containerId: 'app',
   });

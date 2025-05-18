@@ -6,9 +6,9 @@ import {
 } from '@/lib/render';
 
 import { fsSource, vsSource } from './domain/constants';
-import { setupWebGLCanvas } from '../domain/setupWebGLCanvas';
 import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
 import { MondlichEngine } from '@/lib/engine';
+import { createWebGLCanvas } from '@/lib';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -45,7 +45,7 @@ const COLOR_CONFIG = {
 const INDICES_DATA = new Uint16Array([0, 1, 2]);
 
 export const setupTriangleScene = (): void => {
-  const { gl, canvas } = setupWebGLCanvas({
+  const { gl, canvas } = createWebGLCanvas({
     ...DEFAULT_CANVAS_SIZE,
     containerId: 'app',
   });

@@ -1,4 +1,3 @@
-import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 import { DEFAULT_CANVAS_SIZE } from '@/playground/domain/constants';
 import { loadImage } from '@/lib/utils';
 import {
@@ -11,6 +10,7 @@ import { MondlichAdapter } from '@/lib/adapters/mondlichAdapter';
 import { MondlichEngine } from '@/lib/engine';
 import { ShaderUniformsManager } from '@/lib/render/baseShaderProgram/domain/shaderUniformsManager';
 import { EngineAdapter } from '@/lib/adapters';
+import { createWebGLCanvas } from '@/lib';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -46,7 +46,7 @@ export class BaseUniformsManager extends ShaderUniformsManager {
 
 export const setupSingleTextureScene = async (): Promise<void> => {
 
-  const { gl, canvas } = setupWebGLCanvas({
+  const { gl, canvas } = createWebGLCanvas({
     ...DEFAULT_CANVAS_SIZE,
     containerId: 'app',
   });

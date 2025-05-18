@@ -9,24 +9,24 @@ const CANVAS_DEFAULT_OPTIONS: WebGLContextAttributes = {
 };
 
 
-type TSetupWebGLCanvasArguments = {
+type TcreateWebGLCanvasArguments = {
   width: number,
   height: number,
   containerId: string,
   options?: WebGLContextAttributes,
 };
 
-type TSetupWebGLCanvasReturnValue = {
+type TcreateWebGLCanvasReturnValue = {
   canvas: HTMLCanvasElement,
   gl: WebGL2RenderingContext,
 };
 
-export const setupWebGLCanvas = ({
+export const createWebGLCanvas = ({
   width,
   height,
   containerId,
   options = {},
-}: TSetupWebGLCanvasArguments): TSetupWebGLCanvasReturnValue => {
+}: TcreateWebGLCanvasArguments): TcreateWebGLCanvasReturnValue => {
   const appContainer = document.getElementById(containerId);
   if (!appContainer) {
     throw new Error('Element with ID "app" not found');

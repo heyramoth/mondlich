@@ -1,13 +1,16 @@
-import { setupWebGLCanvas } from '@/playground/domain/setupWebGLCanvas';
 
-import { MondlichRenderer } from '@/lib/render';
-import { MondlichAdapter } from '@/lib/adapters';
+import {
+  MondlichAdapter,
+  MondlichEngine,
+  Timer,
+  UserInput,
+  createWebGLCanvas,
+} from '@/lib';
+
 import { vec3 } from 'gl-matrix';
-import { UserInput } from '@/lib/utils/userInput';
 import { createFirework } from './application/createFirework';
-import { Timer } from '@/lib/utils';
 import { MondlichMath } from '@/lib/utils/mondlichMath';
-import { MondlichEngine } from '@/lib/engine';
+import { MondlichRenderer } from '@/lib/render';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -31,7 +34,7 @@ export const DEFAULT_CANVAS_SIZE = {
 
 export const setupFireworksScene = async (): Promise<void> => {
 
-  const { gl, canvas } = setupWebGLCanvas({
+  const { gl, canvas } = createWebGLCanvas({
     ...DEFAULT_CANVAS_SIZE,
     containerId: 'app',
   });
