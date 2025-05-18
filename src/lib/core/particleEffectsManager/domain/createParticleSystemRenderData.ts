@@ -14,7 +14,6 @@ export const createParticleSystemRenderData = (options: {
     elementsCount: options.effect.particlesCount,
   });
 
-
   renderData.createVertexBuffers([
     {
       name: 'aPosition',
