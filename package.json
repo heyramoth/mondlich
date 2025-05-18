@@ -4,7 +4,7 @@
   "description": "cross-engine vfx library",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heyramoth/mondlich.git"
+    "url": "git+https://github.com/heyramoth/mondlich.git"
   },
   "author": "Elizaveta Zalomnova <heyramoth@gmail.com>",
   "license": "MIT",
