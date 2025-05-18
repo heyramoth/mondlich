@@ -1,6 +1,6 @@
 import { BaseShaderProgram, RenderData } from '@/lib/render';
 import { ParticleEffect } from '@/lib/core';
-import { BUFFER_CONFIGS } from '@/playground/fireworksScene/domain/constants';
+import { BUFFER_CONFIGS } from '../domain/constants';
 
 export const createParticleSystemRenderData = (options: {
   gl: WebGL2RenderingContext,

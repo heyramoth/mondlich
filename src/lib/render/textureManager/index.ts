@@ -7,12 +7,12 @@ export class TextureManager {
       return cachedTexture;
     }
 
-    console.log(`Loading texture ${url}...`);
     const image: HTMLImageElement = new Image();
     image.crossOrigin = 'anonymous';
     image.src = url;
     await image.decode();
-    console.log(`Loaded texture ${url}.`);
+
+    this.textureCache.set(url, image);
     return image;
   }
 

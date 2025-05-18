@@ -1,7 +1,7 @@
 import { ShaderUniformsManager } from '@/lib/render/baseShaderProgram/domain/shaderUniformsManager';
 import { EngineAdapter } from '@/lib/adapters';
 import { BaseShaderProgram } from '@/lib/render';
-import { fsSource, vsSource } from '@/playground/fireworksScene/domain/constants';
+import { fsSource, vsSource } from '../domain/constants';
 
 export class CameraUniformsManager extends ShaderUniformsManager {
   updateUniforms({ adapter, shader }: {

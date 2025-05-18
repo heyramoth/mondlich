@@ -8,3 +8,7 @@ export { ParticleEffectsManager } from './core/particleEffectsManager';
 
 export { RenderData } from './render/renderData';
 export { BaseShaderProgram } from './render/baseShaderProgram';
+
+
+export { UserInput } from './utils/userInput';
+export { Timer } from './utils/timer';
