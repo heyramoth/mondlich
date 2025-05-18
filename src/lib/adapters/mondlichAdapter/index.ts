@@ -33,6 +33,10 @@ export class MondlichAdapter implements EngineAdapter {
     return matrix;
   }
 
+  get gl(): WebGL2RenderingContext {
+    return this.engine.gl;
+  }
+
   executeInGLContext(callback: (gl: WebGL2RenderingContext) => void): void {
     callback(this.engine.gl);
   }
