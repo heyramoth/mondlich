@@ -140,17 +140,17 @@ export class UserInput {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
+    event.preventDefault();
     const key = event.key.toLowerCase();
     if (key in this.keys) {
-      event.preventDefault();
       this.keys[key] = true;
     }
   }
 
   private onKeyUp(event: KeyboardEvent): void {
+    event.preventDefault();
     const key = event.key.toLowerCase();
     if (key in this.keys) {
-      event.preventDefault();
       this.keys[key] = false;
     }
   }
