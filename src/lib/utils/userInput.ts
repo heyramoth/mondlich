@@ -3,6 +3,7 @@ import { MondlichCamera } from '@/lib/utils/mondlichCamera';
 import { Timer } from '@/lib/utils/timer';
 import { MondlichMath } from '@/lib/utils/mondlichMath';
 
+type TKey = 'KeyW' | 'KeyA' | 'KeyS' | 'KeyD';
 
 export class UserInput {
   private camera: MondlichCamera;
@@ -15,7 +16,7 @@ export class UserInput {
 
   private moveSpeed: number;
   private rotateSpeed: number;
-  private keys: Record<string, boolean>;
+  private keys: { [Key in TKey]: boolean };
 
   constructor({
     camera,
@@ -41,10 +42,10 @@ export class UserInput {
     this.moveSpeed = moveSpeed;
     this.rotateSpeed = rotateSpeed;
     this.keys = {
-      'w': false,
-      'a': false,
-      's': false,
-      'd': false,
+      'KeyW': false,
+      'KeyA': false,
+      'KeyS': false,
+      'KeyD': false,
     };
 
     this.setupEventListeners();
@@ -101,20 +102,20 @@ export class UserInput {
     vec3.cross(right, front, this.camera.upVector);
     vec3.normalize(right, right);
 
-    if (this.keys['w']) {
+    if (this.keys['KeyW']) {
       const move = vec3.scale(vec3.create(), front, this.moveSpeed * deltaTime);
       this.camera.moveEye(move);
       this.camera.moveLookAt(move);
     }
-    if (this.keys['s']) {
+    if (this.keys['KeyS']) {
       const move = vec3.scale(vec3.create(), front, -this.moveSpeed * deltaTime);
       this.camera.moveEye(move);
       this.camera.moveLookAt(move);
     }
-    if (this.keys['a']) {
+    if (this.keys['KeyA']) {
       this.rotateCamera(this.rotateSpeed * deltaTime);
     }
-    if (this.keys['d']) {
+    if (this.keys['KeyD']) {
       this.rotateCamera(-this.rotateSpeed * deltaTime);
     }
   }
@@ -139,19 +140,21 @@ export class UserInput {
     this.camera.setLookAt(newCenter);
   }
 
+  private isEventCodeInKeys(code: string): code is TKey {
+    return code in this.keys;
+  }
+
   private onKeyDown(event: KeyboardEvent): void {
     event.preventDefault();
-    const key = event.key.toLowerCase();
-    if (key in this.keys) {
-      this.keys[key] = true;
+    if (this.isEventCodeInKeys(event.code)) {
+      this.keys[event.code] = true;
     }
   }
 
   private onKeyUp(event: KeyboardEvent): void {
     event.preventDefault();
-    const key = event.key.toLowerCase();
-    if (key in this.keys) {
-      this.keys[key] = false;
+    if (this.isEventCodeInKeys(event.code)) {
+      this.keys[event.code] = false;
     }
   }
 
