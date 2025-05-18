@@ -8,7 +8,6 @@ import { TextureManager } from '@/lib/render/textureManager';
 
 import { createParticleSystemShader } from './application/createParticleSystemShader';
 import { createParticleSystemRenderData } from './application/createParticleSystemRenderData';
-import SparkImg from '@/assets/textures/spark.png';
 
 const DEFAULT_SPAWN_FRAMESPAN = 10;
 
@@ -71,7 +70,7 @@ export class ParticleEffectsManager {
     const system = new FireworkSystem();
 
     const shader = createParticleSystemShader(this.adapter.gl);
-    const htmlTexture = this.textureManager.getTexture(SparkImg);
+    const htmlTexture = this.textureManager.getTexture('spark');
 
     return this.createEffect({
       system,

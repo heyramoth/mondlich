@@ -4,12 +4,11 @@ import {
   ParticleEffectsManager,
   Timer,
   UserInput,
+  MondlichMath,
   createWebGLCanvas,
 } from '@/lib';
 
-import SparkImg from '@/assets/textures/spark.png';
 import { vec3 } from 'gl-matrix';
-import { MondlichMath } from '@/lib/utils/mondlichMath';
 
 const configureRenderingContext = ({ gl, width, height }: {
   gl: WebGL2RenderingContext,
@@ -47,7 +46,7 @@ export const setupDynamicFireworksScene = async (): Promise<void> => {
   const adapter = new MondlichAdapter(engine);
   const manager = new ParticleEffectsManager(adapter);
 
-  await manager.textureManager.loadImage(SparkImg);
+  await manager.textureManager.loadTextureLibrary();
   const firework = manager.createFirework({ particlesCount: 20000 });
   firework.settings.origin = [0, 0, -500];
 
