@@ -77,9 +77,9 @@ export const setupDynamicFireworksScene = async (): Promise<void> => {
   timer.start();
   firework.start();
 
-  const loop = (): void => {
+  const loop = async () => {
     updateFireworkSettings();
-    firework.update();
+    await manager.update();
     userInput.update();
 
 

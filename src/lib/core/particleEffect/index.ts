@@ -21,10 +21,6 @@ export class ParticleEffect<T extends ParticleSystem> {
   private readonly pool: ParticlePool;
   private readonly particleSystem: T;
 
-  // TODO: убрать из класса
-  public isWorkerUsed: boolean = false;
-  private executionContext: ExecutionContext = new MainThreadContext();
-
   // TODO: должно быть доступно только из партикл эффекта/воркера
   readonly spawnFramespan: number;
   private readonly timer: Timer;
@@ -65,16 +61,13 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
   }
 
-  setExecutionContext(context: ExecutionContext): void {
-    this.executionContext = context;
-  }
-
-  async update(): Promise<void> {
+  async update(context?: ExecutionContext): Promise<void> {
     if (!this.timer.isRunning) return Promise.resolve();
 
-    return this.executionContext.update(this);
+    return (context || new MainThreadContext()).update(this);
   }
 
+  // TODO: вынести в функцию и переиспользовать в скрипте воркера
   updateParticles(): void {
     const time = Date.now() * 0.001;
     this.frameDelta += this.timer.getDelta();

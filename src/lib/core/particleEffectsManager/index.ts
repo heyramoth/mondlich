@@ -9,12 +9,13 @@ import { TextureManager } from '@/lib/render/textureManager';
 import { createParticleSystemShader } from './application/createParticleSystemShader';
 import { createParticleSystemRenderData } from './application/createParticleSystemRenderData';
 import { WorkerManager } from '@/lib/core/workerManager';
-import { WorkerContext } from '@/lib/core/executionContexts/workerContext';
+import { ExecutionContextManager } from '@/lib/core/particleEffectsManager/domain/ExecutionContextManager';
+import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContext';
 
 const DEFAULT_SPAWN_FRAMESPAN = 10;
 
 export class ParticleEffectsManager {
-  private workerManager: WorkerManager | undefined;
+  private contextManager: ExecutionContextManager | undefined;
   private renderer: MondlichRenderer;
   private effectsData: Map<ParticleEffect<never>, RenderData> = new Map<ParticleEffect<never>, RenderData>();
   readonly textureManager: TextureManager = new TextureManager();
@@ -22,7 +23,7 @@ export class ParticleEffectsManager {
   constructor(private readonly adapter: EngineAdapter, workerScript?: string) {
     this.renderer = new MondlichRenderer(adapter);
     if (workerScript) {
-      this.workerManager = new WorkerManager(workerScript);
+      this.contextManager = new ExecutionContextManager(new WorkerManager(workerScript));
     }
   }
 
@@ -38,13 +39,14 @@ export class ParticleEffectsManager {
     }
   }
 
+  setWorkerEnabled(effect: ParticleEffect<never>, enabled: boolean): void {
+    this.contextManager?.setWorkerEnabled(effect, enabled);
+  }
+
   async update(): Promise<void> {
     const updates = Array.from(this.effectsData.keys()).map(effect => {
-      if (effect.isWorkerUsed && this.workerManager) {
-        const worker = this.workerManager.getLeastBusyWorker();
-        effect.setExecutionContext(new WorkerContext(worker));
-      }
-      return effect.update();
+      const context = this.contextManager?.getContext(effect) || new MainThreadContext();
+      return effect.update(context);
     });
 
     await Promise.all(updates);
@@ -58,7 +60,7 @@ export class ParticleEffectsManager {
     });
   }
 
-  // стоит вынести наверно в отдельный класс
+  // todo: стоит вынести наверно в отдельный класс когда остальные эффекты добавлю
   createEffect<S extends ParticleSystemSettings, T extends ParticleSystem<S>>(options: {
     system: T,
     particlesCount: number,
