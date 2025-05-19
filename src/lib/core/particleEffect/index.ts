@@ -3,6 +3,8 @@ import { Timer } from '@/lib/utils';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { Particle } from '@/lib/core/particle';
 import { MAX_FPS } from '@/lib/domain/constants';
+import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContext';
+import { ExecutionContext } from '@/lib/core/executionContexts/executionContext';
 
 type TSystemSettings<T> = T extends ParticleSystem<infer S> ? S : never;
 
@@ -14,10 +16,17 @@ type TConstructorArguments<T extends ParticleSystem> = {
 
 export class ParticleEffect<T extends ParticleSystem> {
   private _isActive: boolean = true;
-  private _activeParticlesCount: number = 0;
+  // TODO: должно быть доступно только из партикл эффекта/воркера
+  _activeParticlesCount: number = 0;
   private readonly pool: ParticlePool;
   private readonly particleSystem: T;
-  private readonly spawnFramespan: number;
+
+  // TODO: убрать из класса
+  public isWorkerUsed: boolean = false;
+  private executionContext: ExecutionContext = new MainThreadContext();
+
+  // TODO: должно быть доступно только из партикл эффекта/воркера
+  readonly spawnFramespan: number;
   private readonly timer: Timer;
 
   readonly particlesCount: number;
@@ -56,9 +65,17 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
   }
 
-  update(): void {
-    if (!this.timer.isRunning) return;
+  setExecutionContext(context: ExecutionContext): void {
+    this.executionContext = context;
+  }
 
+  async update(): Promise<void> {
+    if (!this.timer.isRunning) return Promise.resolve();
+
+    return this.executionContext.update(this);
+  }
+
+  updateParticles(): void {
     const time = Date.now() * 0.001;
     this.frameDelta += this.timer.getDelta();
 

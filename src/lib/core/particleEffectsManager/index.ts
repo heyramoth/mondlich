@@ -8,16 +8,22 @@ import { TextureManager } from '@/lib/render/textureManager';
 
 import { createParticleSystemShader } from './application/createParticleSystemShader';
 import { createParticleSystemRenderData } from './application/createParticleSystemRenderData';
+import { WorkerManager } from '@/lib/core/workerManager';
+import { WorkerContext } from '@/lib/core/executionContexts/workerContext';
 
 const DEFAULT_SPAWN_FRAMESPAN = 10;
 
 export class ParticleEffectsManager {
+  private workerManager: WorkerManager | undefined;
   private renderer: MondlichRenderer;
   private effectsData: Map<ParticleEffect<never>, RenderData> = new Map<ParticleEffect<never>, RenderData>();
   readonly textureManager: TextureManager = new TextureManager();
 
-  constructor(private readonly adapter: EngineAdapter) {
+  constructor(private readonly adapter: EngineAdapter, workerScript?: string) {
     this.renderer = new MondlichRenderer(adapter);
+    if (workerScript) {
+      this.workerManager = new WorkerManager(workerScript);
+    }
   }
 
   addEffect(effect: ParticleEffect<never>, renderData: RenderData): void {
@@ -32,8 +38,16 @@ export class ParticleEffectsManager {
     }
   }
 
-  update(): void {
-    this.effectsData.forEach((_, effect) => effect.update());
+  async update(): Promise<void> {
+    const updates = Array.from(this.effectsData.keys()).map(effect => {
+      if (effect.isWorkerUsed && this.workerManager) {
+        const worker = this.workerManager.getLeastBusyWorker();
+        effect.setExecutionContext(new WorkerContext(worker));
+      }
+      return effect.update();
+    });
+
+    await Promise.all(updates);
   }
 
   render(): void {
