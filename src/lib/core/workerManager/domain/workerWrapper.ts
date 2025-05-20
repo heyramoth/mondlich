@@ -2,8 +2,8 @@ export class WorkerWrapper {
   private worker: Worker;
   private taskCount: number = 0;
 
-  constructor(workerScript: string) {
-    this.worker = new Worker(workerScript);
+  constructor(workerScript: URL) {
+    this.worker = new Worker(workerScript, { type: 'module' });
   }
 
   postMessage(data: unknown): Promise<unknown> {

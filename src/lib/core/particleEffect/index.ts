@@ -3,7 +3,6 @@ import { Timer } from '@/lib/utils';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { Particle } from '@/lib/core/particle';
 import { MAX_FPS } from '@/lib/domain/constants';
-import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContext';
 import { ExecutionContext } from '@/lib/core/executionContexts/executionContext';
 
 type TSystemSettings<T> = T extends ParticleSystem<infer S> ? S : never;
@@ -61,14 +60,8 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
   }
 
-  async update(context?: ExecutionContext): Promise<void> {
+  async update(context: ExecutionContext): Promise<void> {
     if (!this.timer.isRunning) return Promise.resolve();
-
-    return (context || new MainThreadContext()).update(this);
-  }
-
-  // TODO: вынести в функцию и переиспользовать в скрипте воркера
-  updateParticles(): void {
     const time = Date.now() * 0.001;
     this.frameDelta += this.timer.getDelta();
 
@@ -81,26 +74,52 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
 
     while(this.frameDelta >= 1 / MAX_FPS) {
-      this._activeParticlesCount = 0;
-      for (let i = 0, posIdx = 0, colIdx = 0; i < this.particlesCount; i++) {
-        const particle = this.pool.particles[i];
-        if (!particle.alive) continue;
-
-        particle.update(this.frameDelta, time);
-
-        this.data.positions[posIdx++] = particle.x;
-        this.data.positions[posIdx++] = particle.y;
-        this.data.positions[posIdx++] = particle.z;
-
-        this.data.colors[colIdx++] = particle.color[0];
-        this.data.colors[colIdx++] = particle.color[1];
-        this.data.colors[colIdx++] = particle.color[2];
-
-        this.data.sizes[i] = particle.size;
-
-        if (particle.alive) this._activeParticlesCount++;
-      }
+      // physics calculation
+      await context.updateParticles(this, time);
+      // particle's lifecycle effects
+      this.launchParticleEffects(this.frameDelta, time);
+      // updating buffers for webgl
+      this.updateRenderData();
       this.frameDelta -= 1 / MAX_FPS;
+    }
+  }
+
+  updateParticles(time: number): void {
+    this._activeParticlesCount = 0;
+
+    for (let i = 0; i < this.particlesCount; i++) {
+      const particle = this.pool.particles[i];
+      if (!particle.alive) continue;
+
+      particle.update(this.frameDelta);
+
+      if (particle.alive) this._activeParticlesCount++;
+    }
+  }
+
+  launchParticleEffects(dt: number, time: number): void {
+    for (let i = 0; i < this.particlesCount; i++) {
+      const particle = this.pool.particles[i];
+
+      if (!particle.alive) continue;
+
+      particle.launchEffects(dt, time);
+    }
+  }
+
+  updateRenderData() {
+    for (let i = 0, posIdx = 0, colIdx = 0; i < this.particlesCount; i++) {
+      const particle = this.pool.particles[i];
+
+      this.data.positions[posIdx++] = particle.x;
+      this.data.positions[posIdx++] = particle.y;
+      this.data.positions[posIdx++] = particle.z;
+
+      this.data.colors[colIdx++] = particle.color[0];
+      this.data.colors[colIdx++] = particle.color[1];
+      this.data.colors[colIdx++] = particle.color[2];
+
+      this.data.sizes[i] = particle.size;
     }
   }
 

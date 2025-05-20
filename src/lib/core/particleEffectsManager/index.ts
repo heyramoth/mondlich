@@ -8,23 +8,19 @@ import { TextureManager } from '@/lib/render/textureManager';
 
 import { createParticleSystemShader } from './application/createParticleSystemShader';
 import { createParticleSystemRenderData } from './application/createParticleSystemRenderData';
-import { WorkerManager } from '@/lib/core/workerManager';
 import { ExecutionContextManager } from '@/lib/core/particleEffectsManager/domain/ExecutionContextManager';
-import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContext';
 
 const DEFAULT_SPAWN_FRAMESPAN = 10;
 
 export class ParticleEffectsManager {
-  private contextManager: ExecutionContextManager | undefined;
+  private contextManager: ExecutionContextManager;
   private renderer: MondlichRenderer;
   private effectsData: Map<ParticleEffect<never>, RenderData> = new Map<ParticleEffect<never>, RenderData>();
   readonly textureManager: TextureManager = new TextureManager();
 
-  constructor(private readonly adapter: EngineAdapter, workerScript?: string) {
+  constructor(private readonly adapter: EngineAdapter) {
     this.renderer = new MondlichRenderer(adapter);
-    if (workerScript) {
-      this.contextManager = new ExecutionContextManager(new WorkerManager(workerScript));
-    }
+    this.contextManager = new ExecutionContextManager();
   }
 
   addEffect(effect: ParticleEffect<never>, renderData: RenderData): void {
@@ -40,12 +36,12 @@ export class ParticleEffectsManager {
   }
 
   setWorkerEnabled(effect: ParticleEffect<never>, enabled: boolean): void {
-    this.contextManager?.setWorkerEnabled(effect, enabled);
+    this.contextManager.setWorkerEnabled(effect, enabled);
   }
 
   async update(): Promise<void> {
     const updates = Array.from(this.effectsData.keys()).map(effect => {
-      const context = this.contextManager?.getContext(effect) || new MainThreadContext();
+      const context = this.contextManager.getContext(effect);
       return effect.update(context);
     });
 
@@ -54,7 +50,8 @@ export class ParticleEffectsManager {
 
   render(): void {
     this.effectsData.forEach((renderData, effect) => {
-      if (effect.isActive && effect.activeParticlesCount > 0) {
+      // todo: is activeParticlesCount <= 0 case is possible at all?
+      if (effect.isActive /*&& effect.activeParticlesCount > 0*/) {
         this.renderer.render(renderData);
       }
     });
