@@ -5,9 +5,12 @@ import { ExecutionContext } from '@/lib/core/executionContexts/executionContext'
 import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContext';
 
 export class ExecutionContextManager {
-  private workerContexts = new WeakMap<ParticleEffect<never>, WorkerContext<never>>();
+  private contexts = new WeakMap<ParticleEffect<never>, ExecutionContext<never>>();
+  private workerManager: WorkerManager;
 
-  constructor(private workerManager: WorkerManager) {}
+  constructor() {
+    this.workerManager = new WorkerManager();
+  }
 
   setWorkerEnabled(
     effect: ParticleEffect<never>,
@@ -15,13 +18,13 @@ export class ExecutionContextManager {
   ): void {
     if (enabled) {
       const worker = this.workerManager.getLeastBusyWorker();
-      this.workerContexts.set(effect, new WorkerContext(worker));
+      this.contexts.set(effect, new WorkerContext(worker));
     } else {
-      this.workerContexts.delete(effect);
+      this.contexts.set(effect, new MainThreadContext());
     }
   }
 
   getContext(effect: ParticleEffect<never>): ExecutionContext {
-    return this.workerContexts.get(effect) || new MainThreadContext();
+    return this.contexts.get(effect) || new MainThreadContext();
   }
 }

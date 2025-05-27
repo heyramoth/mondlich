@@ -43,7 +43,7 @@ export class Particle {
     this.effect = () => {};
   }
 
-  update(dt: number, time: number): void {
+  update(dt: number): void {
     this.life -= dt;
     this.size -= dt * this.decay;
 
@@ -72,7 +72,9 @@ export class Particle {
     this.x += this.vx * dt * 100;
     this.z += this.vz * dt * 100;
     this.y += this.vy * dt * 100;
+  }
 
+  launchEffects(dt: number, time: number) {
     if (this.condition(this, dt, time)) {
       this.action(this, dt, time);
       this.reset();
