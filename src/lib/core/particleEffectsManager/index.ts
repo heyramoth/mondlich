@@ -35,7 +35,7 @@ export class ParticleEffectsManager {
     }
   }
 
-  setWorkerEnabled(effect: ParticleEffect<never>, enabled: boolean): void {
+  setWorkerEnabled<T extends ParticleSystem>(effect: ParticleEffect<T>, enabled: boolean): void {
     this.contextManager.setWorkerEnabled(effect, enabled);
   }
 
