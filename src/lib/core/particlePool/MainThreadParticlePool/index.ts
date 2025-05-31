@@ -1,12 +1,13 @@
-import { TParticleData } from '@/lib/core/domain/types';
+import { TParticleCallbacks, TParticleData } from '@/lib/core/domain/types';
 import { SimpleParticlePhysics } from '@/lib/core/ParticlePhysics/SimpleParticlePhysics';
 import { ParticlePhysics } from '@/lib/core/ParticlePhysics/ParticlePhysics';
+import { ParticlePool } from '@/lib/core/particlePool/ParticlePool';
 
 function isSharedArrayBufferAvailable(): boolean {
   return typeof SharedArrayBuffer !== 'undefined' && self.crossOriginIsolated;
 }
 
-export class ParticlePool {
+export class MainThreadParticlePool extends ParticlePool {
   current: number;
   positions: Float32Array;
   velocities: Float32Array;
@@ -23,6 +24,7 @@ export class ParticlePool {
   private physics: ParticlePhysics;
 
   constructor(readonly particlesCount: number) {
+    super();
     this.current = 0;
     this.conditionCallbacks = new Map();
     this.actionCallbacks = new Map();
@@ -51,6 +53,12 @@ export class ParticlePool {
       positions: this.positions,
       colors: this.colors,
       sizes: this.sizes,
+      velocities: this.velocities,
+      masses: this.masses,
+      decays: this.decays,
+      lives: this.lives,
+      gravities: this.gravities,
+      aliveStatus: this.aliveStatus,
     };
   }
 
@@ -60,7 +68,7 @@ export class ParticlePool {
     }
   }
 
-  add(data: Partial<TParticleData> & Pick<TParticleData, 'x' | 'y' | 'z'>): number {
+  add(data: Partial<TParticleData & TParticleCallbacks> & Pick<TParticleData, 'x' | 'y' | 'z'>): number {
     this.current++;
     if (this.current === this.particlesCount) {
       this.current = 0;
@@ -111,13 +119,18 @@ export class ParticlePool {
       decay: this.decays[i],
       life: this.lives[i],
       gravity: this.gravities[i],
+    };
+  }
+
+  getParticleCallbacks(i: number): TParticleCallbacks {
+    return {
       condition: this.conditionCallbacks.get(i) || (() => false),
       action: this.actionCallbacks.get(i) || (() => {}),
       effect: this.effectCallbacks.get(i) || (() => {}),
     };
   }
 
-  updateParticle(i: number, data: Partial<TParticleData>): void {
+  updateParticle(i: number, data: Partial<TParticleData & TParticleCallbacks>): void {
     const posIdx = i * 3;
     const velIdx = i * 3;
     const colIdx = i * 3;
@@ -149,9 +162,24 @@ export class ParticlePool {
 
   reset(i: number): void {
     this.physics.reset(i, this);
+    this.conditionCallbacks.set(i, () => false);
+    this.actionCallbacks.set(i, () => {});
+    this.effectCallbacks.set(i, () => {});
   }
 
   launchEffects(dt: number, time: number, i: number): void {
-    this.physics.launchEffects(dt, time, i, this);
+    const data = this.getParticle(i);
+    const callbacks = this.getParticleCallbacks(i);
+
+    if (callbacks.condition(data, dt, time)) {
+      callbacks.action(data, dt, time);
+      this.reset(i);
+    }
+
+    callbacks.effect(data, dt, time);
+
+    if (this.lives[i] <= 0 || this.sizes[i] <= 0) {
+      this.reset(i);
+    }
   }
 }

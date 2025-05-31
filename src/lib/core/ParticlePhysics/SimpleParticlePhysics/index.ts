@@ -1,5 +1,5 @@
-import { ParticlePool } from '@/lib/core/particlePool';
 import { ParticlePhysics } from '../ParticlePhysics';
+import { ParticlePool } from '@/lib/core/particlePool/ParticlePool';
 
 export class SimpleParticlePhysics extends ParticlePhysics {
   update(dt: number, i: number, pool: ParticlePool): void {
@@ -54,23 +54,5 @@ export class SimpleParticlePhysics extends ParticlePhysics {
     pool.colors[colIdx] = 1;
     pool.colors[colIdx + 1] = 1;
     pool.colors[colIdx + 2] = 1;
-    pool.conditionCallbacks.set(i, () => false);
-    pool.actionCallbacks.set(i, () => {});
-    pool.effectCallbacks.set(i, () => {});
-  }
-
-  launchEffects(dt: number, time: number, i: number, pool: ParticlePool): void {
-    const data = pool.getParticle(i);
-
-    if (data.condition(data, dt, time)) {
-      data.action(data, dt, time);
-      this.reset(i, pool);
-    }
-
-    data.effect(data, dt, time);
-
-    if (pool.lives[i] <= 0 || pool.sizes[i] <= 0) {
-      this.reset(i, pool);
-    }
   }
 }

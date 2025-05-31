@@ -1,8 +1,8 @@
 import { ParticleSystem } from '@/lib/core/particleSystem';
 import { Timer } from '@/lib/utils';
-import { ParticlePool } from '@/lib/core/particlePool';
 import { MAX_FPS } from '@/lib/domain/constants';
 import { ExecutionContext } from '@/lib/core/executionContexts/executionContext';
+import { MainThreadParticlePool } from '@/lib/core/particlePool/MainThreadParticlePool';
 
 type TSystemSettings<T> = T extends ParticleSystem<infer S> ? S : never;
 
@@ -16,7 +16,7 @@ export class ParticleEffect<T extends ParticleSystem> {
   private _isActive: boolean = true;
   // TODO: должно быть доступно только из партикл эффекта/воркера
   _activeParticlesCount: number = 0;
-  private readonly pool: ParticlePool;
+  private readonly pool: MainThreadParticlePool;
   private readonly particleSystem: T;
 
   // TODO: должно быть доступно только из партикл эффекта/воркера
@@ -34,7 +34,7 @@ export class ParticleEffect<T extends ParticleSystem> {
     spawnFramespan,
   }: TConstructorArguments<T>) {
     this.particlesCount = particlesCount;
-    this.pool = new ParticlePool(this.particlesCount);
+    this.pool = new MainThreadParticlePool(this.particlesCount);
     this.timer = new Timer(false);
     this.particleSystem = particleSystem;
     this.spawnFramespan = spawnFramespan;
