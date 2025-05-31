@@ -74,7 +74,7 @@ export const setupTriangleScene = (): void => {
   renderData.createVertexBuffers([
     {
       name: 'aPosition',
-      data: POSITIONS_CONFIG.data,
+      getData: () => POSITIONS_CONFIG.data,
       attributeConfig: {
         size: POSITIONS_CONFIG.attrSize,
         type: gl.FLOAT,
@@ -85,7 +85,7 @@ export const setupTriangleScene = (): void => {
     },
     {
       name: 'aColor',
-      data: COLOR_CONFIG.data,
+      getData: () => COLOR_CONFIG.data,
       attributeConfig: {
         size: COLOR_CONFIG.attrSize,
         type: gl.FLOAT,

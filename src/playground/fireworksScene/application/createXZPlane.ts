@@ -63,7 +63,7 @@ export const createXZPlane = (gl: WebGL2RenderingContext): {
 
   planeRenderData.createVertexBuffer({
     name: 'aPosition',
-    data: positions,
+    getData: () => positions,
     attributeConfig: {
       size: 3,
       type: gl.FLOAT,
@@ -75,7 +75,7 @@ export const createXZPlane = (gl: WebGL2RenderingContext): {
 
   planeRenderData.createVertexBuffer({
     name: 'aColor',
-    data: colors,
+    getData: () => colors,
     attributeConfig: {
       size: 3,
       type: gl.FLOAT,

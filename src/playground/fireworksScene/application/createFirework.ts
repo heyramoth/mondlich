@@ -43,7 +43,7 @@ export const createFirework = async (gl: WebGL2RenderingContext)=> {
   renderData.createVertexBuffers([
     {
       name: 'aPosition',
-      data: effect.data.positions,
+      getData: () => effect.data.positions,
       attributeConfig: {
         size: BUFFER_CONFIGS.aPosition.attrSize,
         type: gl.FLOAT,
@@ -54,7 +54,7 @@ export const createFirework = async (gl: WebGL2RenderingContext)=> {
     },
     {
       name: 'aColor',
-      data: effect.data.colors,
+      getData: () => effect.data.colors,
       attributeConfig: {
         size: BUFFER_CONFIGS.aColor.attrSize,
         type: gl.FLOAT,
@@ -65,7 +65,7 @@ export const createFirework = async (gl: WebGL2RenderingContext)=> {
     },
     {
       name: 'aSize',
-      data: effect.data.sizes,
+      getData: () => effect.data.sizes,
       attributeConfig: {
         size: BUFFER_CONFIGS.aSize.attrSize,
         type: gl.FLOAT,
