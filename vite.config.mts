@@ -12,7 +12,7 @@ export default defineConfig({
     plugins: [
         eslint(),
         dts({  rollupTypes: true, tsconfigPath: "./tsconfig.json",}),
-        // crossOriginIsolation(),
+        crossOriginIsolation(),
     ],
     build: {
         lib: {

@@ -48,6 +48,7 @@ export const setupDynamicFireworksScene = async (): Promise<void> => {
 
   await manager.textureManager.loadTextureLibrary();
   const firework = manager.createFirework({ particlesCount: 20000 });
+  const firework2 = manager.createFirework({ particlesCount: 20000 });
   firework.settings.origin = [0, 0, -1000];
   manager.setWorkerEnabled(firework, true);
 
@@ -77,6 +78,7 @@ export const setupDynamicFireworksScene = async (): Promise<void> => {
 
   timer.start();
   firework.start();
+  firework2.start();
 
   const loop = async () => {
     updateFireworkSettings();

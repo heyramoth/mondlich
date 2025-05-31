@@ -17,7 +17,7 @@ export const createParticleSystemRenderData = (options: {
   renderData.createVertexBuffers([
     {
       name: 'aPosition',
-      data: options.effect.data.positions,
+      data: () => options.effect.data.positions,
       attributeConfig: {
         size: BUFFER_CONFIGS.aPosition.attrSize,
         type: options.gl.FLOAT,
@@ -28,7 +28,7 @@ export const createParticleSystemRenderData = (options: {
     },
     {
       name: 'aColor',
-      data: options.effect.data.colors,
+      data: () => options.effect.data.colors,
       attributeConfig: {
         size: BUFFER_CONFIGS.aColor.attrSize,
         type: options.gl.FLOAT,
@@ -39,7 +39,7 @@ export const createParticleSystemRenderData = (options: {
     },
     {
       name: 'aSize',
-      data: options.effect.data.sizes,
+      data: () => options.effect.data.sizes,
       attributeConfig: {
         size: BUFFER_CONFIGS.aSize.attrSize,
         type: options.gl.FLOAT,

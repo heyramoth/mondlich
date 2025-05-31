@@ -7,7 +7,7 @@ import {
 
 type TCreateVertexBufferArguments = {
   name: string,
-  data: Float32Array,
+  data: () => Float32Array,
   attributeConfig: TVertexAttribPointerConfig,
   usage?: number,
 };
@@ -47,7 +47,7 @@ export class RenderData {
     const buffer = this.gl.createBuffer();
     if (!buffer) throw new Error('Failed to create vertex buffer');
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, data, usage);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, data(), usage);
     this.vertexBuffers.set(name, {
       buffer,
       data,
@@ -97,9 +97,7 @@ export class RenderData {
     if (!config) throw new Error(`Vertex buffer ${name} not found`);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, config.buffer);
-    if (name === 'aPosition')
-      console.log(config.data.length);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, config.data, config.usage);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, config.data(), config.usage);
 
     const location = this.gl.getAttribLocation(this.shaderProgram.program, name);
     if (location === -1) {

@@ -8,7 +8,7 @@ export type TVertexAttribPointerConfig = {
 
 export type TVertexBufferConfig = {
   buffer: WebGLBuffer,
-  data: Float32Array,
+  data: () => Float32Array,
   usage: number,
   attributeConfig: TVertexAttribPointerConfig,
 };
