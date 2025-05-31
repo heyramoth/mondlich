@@ -40,8 +40,17 @@ export class ParticleEffect<T extends ParticleSystem> {
     this.spawnFramespan = spawnFramespan;
   }
 
-  get data () {
+  get data (): typeof this.pool.data {
     return this.pool.data;
+  }
+
+  set data (newData: Partial<typeof this.pool.data>) {
+    Object.entries(newData).forEach(([key, value]) => {
+      if (value) {
+        // @ts-ignore
+        this.pool[key] = value;
+      }
+    });
   }
 
   async update(context: ExecutionContext): Promise<void> {

@@ -5,6 +5,8 @@ type TWorkerReturnValue = {
   masses: Float32Array,
   decays: Float32Array,
   lives: Float32Array,
+  gravities: Float32Array,
+  aliveStatus: Uint8Array,
 };
 
 export class WorkerWrapper {

@@ -97,6 +97,8 @@ export class RenderData {
     if (!config) throw new Error(`Vertex buffer ${name} not found`);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, config.buffer);
+    if (name === 'aPosition')
+      console.log(config.data.length);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, config.data, config.usage);
 
     const location = this.gl.getAttribLocation(this.shaderProgram.program, name);

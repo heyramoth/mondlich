@@ -41,6 +41,8 @@ self.onmessage = function (e) {
     masses: pool.masses,
     decays: pool.decays,
     lives: pool.lives,
+    gravities: pool.gravities,
+    aliveStatus: pool.aliveStatus,
   };
 
   const isSharedArrayBuffer = isSharedArrayBufferAvailable() && positions.buffer instanceof SharedArrayBuffer;
@@ -51,6 +53,8 @@ self.onmessage = function (e) {
     data.masses.buffer,
     data.decays.buffer,
     data.lives.buffer,
+    data.gravities.buffer,
+    data.aliveStatus.buffer,
   ];
 
   self.postMessage(data, { transfer });

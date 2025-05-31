@@ -40,12 +40,16 @@ export class WorkerContext<T extends ParticleSystem> extends ExecutionContext<T>
 
     // only needed for ArrayBuffer, as SharedArrayBuffer updates in-place
     if (!isSharedArrayBuffer) {
-      poolData.positions.set(result.positions);
-      poolData.velocities.set(result.velocities);
-      poolData.sizes.set(result.sizes);
-      poolData.masses.set(result.masses);
-      poolData.decays.set(result.decays);
-      poolData.lives.set(result.lives);
+      effect.data = {
+        positions: result.positions,
+        sizes: result.sizes,
+        velocities: result.velocities,
+        masses: result.masses,
+        decays: result.decays,
+        lives: result.lives,
+        gravities: result.gravities,
+        aliveStatus: result.aliveStatus,
+      };
     }
   }
 }
