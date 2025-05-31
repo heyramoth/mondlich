@@ -1,77 +1,155 @@
-import { Particle } from '@/lib/core/particle';
+import { SimpleParticlePhysics, TParticleData } from '@/lib/core/ParticlePhysics/SimpleParticlePhysics';
+import { ParticlePhysics } from '@/lib/core/ParticlePhysics/ParticlePhysics';
 
-type TParticleProperties = {
-  x: number,
-  y: number,
-  z: number,
-  vx?: number,
-  vy?: number,
-  vz?: number,
-  size?: number,
-  life?: number,
-  mass?: number,
-  decay?: number,
-  gravity?: number,
-  r?: number,
-  g?: number,
-  b?: number,
-  condition?: (particle: Particle, dt: number, time: number) => boolean,
-  action?: (particle: Particle, dt: number, time: number) => void,
-  effect?: (particle: Particle, dt: number, time: number) => void,
-  onCreate?: (particle: Particle) => void,
-};
+function isSharedArrayBufferAvailable(): boolean {
+  return typeof SharedArrayBuffer !== 'undefined' && self.crossOriginIsolated;
+}
 
-class ParticlePool {
+export class ParticlePool {
   current: number;
-  particles: Particle[];
+  positions: Float32Array;
+  velocities: Float32Array;
+  sizes: Float32Array;
+  masses: Float32Array;
+  decays: Float32Array;
+  lives: Float32Array;
+  gravities: Float32Array;
+  aliveStatus: Uint8Array;
+  colors: Float32Array;
+  conditionCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => boolean>;
+  actionCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => void>;
+  effectCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => void>;
+  private physics: ParticlePhysics;
 
-  constructor() {
+  constructor(readonly particlesCount: number) {
     this.current = 0;
-    this.particles = [];
+    this.conditionCallbacks = new Map();
+    this.actionCallbacks = new Map();
+    this.effectCallbacks = new Map();
+    // todo: make injection
+    this.physics = new SimpleParticlePhysics();
+
+    const useSharedArrayBuffer = isSharedArrayBufferAvailable();
+    const bufferType = useSharedArrayBuffer ? SharedArrayBuffer : ArrayBuffer;
+    this.positions = new Float32Array(new bufferType(particlesCount * 3 * 4));
+    this.velocities = new Float32Array(new bufferType(particlesCount * 3 * 4));
+    this.sizes = new Float32Array(new bufferType(particlesCount * 4));
+    this.masses = new Float32Array(new bufferType(particlesCount * 4));
+    this.decays = new Float32Array(new bufferType(particlesCount * 4));
+    this.lives = new Float32Array(new bufferType(particlesCount * 4));
+    this.gravities = new Float32Array(new bufferType(particlesCount * 4));
+    this.aliveStatus = new Uint8Array(new bufferType(particlesCount));
+    this.colors = new Float32Array(new bufferType(particlesCount * 3 * 4));
+
+    this.initPool();
   }
 
-  add(prop: TParticleProperties): void {
+  get data () {
+    return {
+      positions: this.positions,
+      colors: this.colors,
+      sizes: this.sizes,
+    };
+  }
+
+  private initPool(): void {
+    for (let i = 0; i < this.particlesCount; i++) {
+      this.reset(i);
+    }
+  }
+
+  add(data: Partial<TParticleData> & Pick<TParticleData, 'x' | 'y' | 'z'>): number {
     this.current++;
-    if (this.current === this.particles.length) {
+    if (this.current === this.particlesCount) {
       this.current = 0;
     }
 
-    this.particles[this.current].alive = true;
-    this.particles[this.current].x = prop.x;
-    this.particles[this.current].y = prop.y;
-    this.particles[this.current].z = prop.z;
-    this.particles[this.current].vy = prop.vy || 0;
-    this.particles[this.current].vz = prop.vz || 0;
-    this.particles[this.current].vx = prop.vx || 0;
-    this.particles[this.current].size = prop.size || 1;
-    this.particles[this.current].life = prop.life || 1;
-    this.particles[this.current].mass = prop.mass || 1;
-    this.particles[this.current].decay = prop.decay || 10;
-    this.particles[this.current].gravity = prop.gravity || -9.82;
-    this.particles[this.current].color[0] = prop.r || 1.0;
-    this.particles[this.current].color[1] = prop.g || 1.0;
-    this.particles[this.current].color[2] = prop.b || 1.0;
+    this.updateParticle(this.current, {
+      alive: true,
+      x: data.x,
+      y: data.y,
+      z: data.z,
+      vx: data.vx || 0,
+      vy: data.vy || 0,
+      vz: data.vz || 0,
+      mass: data.mass || 1,
+      size: data.size || 1,
+      decay: data.decay || 10,
+      life: data.life || 1,
+      gravity:  data.gravity || -9.82,
+      r: data.r || 1.0,
+      g: data.g || 1.0,
+      b: data.b || 1.0,
+      condition: data.condition || (() => false),
+      action: data.action || (() => {}),
+      effect: data.effect || (() => {}),
+    });
 
-    this.particles[this.current].condition = prop.condition || (
+    return this.current;
+  }
 
-      () => {
-        return false;
-      }
-    );
-    this.particles[this.current].action = prop.action || (
+  getParticle(i: number): TParticleData {
+    const posIdx = i * 3;
+    const velIdx = i * 3;
+    const colIdx = i * 3;
 
-      () => {}
-    );
-    this.particles[this.current].effect = prop.effect || (
+    return {
+      x: this.positions[posIdx],
+      y: this.positions[posIdx + 1],
+      z: this.positions[posIdx + 2],
+      vx: this.velocities[velIdx],
+      vy: this.velocities[velIdx + 1],
+      vz: this.velocities[velIdx + 2],
+      mass: this.masses[i],
+      alive: this.aliveStatus[i] === 1,
+      size: this.sizes[i],
+      r: this.colors[colIdx],
+      g: this.colors[colIdx + 1],
+      b: this.colors[colIdx + 2],
+      decay: this.decays[i],
+      life: this.lives[i],
+      gravity: this.gravities[i],
+      condition: this.conditionCallbacks.get(i) || (() => false),
+      action: this.actionCallbacks.get(i) || (() => {}),
+      effect: this.effectCallbacks.get(i) || (() => {}),
+    };
+  }
 
-      () => {}
-    );
+  updateParticle(i: number, data: Partial<TParticleData>): void {
+    const posIdx = i * 3;
+    const velIdx = i * 3;
+    const colIdx = i * 3;
 
-    // console.log(prop, this.particles[this.current])
-    if (prop.onCreate) {
-      prop.onCreate(this.particles[this.current]);
-    }
+    if (data.x !== undefined) this.positions[posIdx] = data.x;
+    if (data.y !== undefined) this.positions[posIdx + 1] = data.y;
+    if (data.z !== undefined) this.positions[posIdx + 2] = data.z;
+    if (data.vx !== undefined) this.velocities[velIdx] = data.vx;
+    if (data.vy !== undefined) this.velocities[velIdx + 1] = data.vy;
+    if (data.vz !== undefined) this.velocities[velIdx + 2] = data.vz;
+    if (data.mass !== undefined) this.masses[i] = data.mass;
+    if (data.alive !== undefined) this.aliveStatus[i] = data.alive ? 1 : 0;
+    if (data.size !== undefined) this.sizes[i] = data.size;
+    if (data.r !== undefined) this.colors[colIdx] = data.r;
+    if (data.g !== undefined) this.colors[colIdx + 1] = data.g;
+    if (data.b !== undefined) this.colors[colIdx + 2] = data.b;
+    if (data.decay !== undefined) this.decays[i] = data.decay;
+    if (data.life !== undefined) this.lives[i] = data.life;
+    if (data.gravity !== undefined) this.gravities[i] = data.gravity;
+
+    if (data.condition !== undefined) this.conditionCallbacks.set(i, data.condition);
+    if (data.action !== undefined) this.actionCallbacks.set(i, data.action);
+    if (data.effect !== undefined) this.effectCallbacks.set(i, data.effect);
+  }
+
+  update(dt: number, i: number): void {
+    this.physics.update(dt, i, this);
+  }
+
+  reset(i: number): void {
+    this.physics.reset(i, this);
+  }
+
+  launchEffects(dt: number, time: number, i: number): void {
+    this.physics.launchEffects(dt, time, i, this);
   }
 }
-
-export { ParticlePool };
