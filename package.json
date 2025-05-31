@@ -1,6 +1,6 @@
 {
   "name": "mondlich",
-  "version": "1.0.11",
+  "version": "1.0.21",
   "type": "module",
   "description": "cross-engine vfx library",
   "private": false,
