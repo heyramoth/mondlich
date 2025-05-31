@@ -126,4 +126,8 @@ export class ParticleEffect<T extends ParticleSystem> {
   get settings(): TSystemSettings<T> {
     return this.particleSystem.settings as TSystemSettings<T>;
   }
+
+  cleanup () {
+    this.pool.cleanup();
+  }
 }

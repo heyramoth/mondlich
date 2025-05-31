@@ -15,10 +15,24 @@ export class ExecutionContextManager {
 
   setWorkerEnabled<T extends ParticleSystem>(effect: ParticleEffect<T>, enabled: boolean): void {
     if (enabled) {
+      if (this.contexts.get(effect) instanceof WorkerContext) {
+        return;
+      }
       const worker = this.workerManager.getLeastBusyWorker();
       this.contexts.set(effect, new WorkerContext(worker));
     } else {
+      const currentContext = this.contexts.get(effect);
+      if (currentContext instanceof WorkerContext) {
+        this.terminateContext(effect);
+      }
       this.contexts.set(effect, new MainThreadContext());
+    }
+  }
+
+  terminateContext<T extends ParticleSystem>(effect: ParticleEffect<T>): void {
+    const context = this.getContext(effect);
+    if (context instanceof WorkerContext) {
+      context.terminate();
     }
   }
 

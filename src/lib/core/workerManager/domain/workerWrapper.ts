@@ -31,4 +31,8 @@ export class WorkerWrapper {
   get busyness(): number {
     return this.taskCount;
   }
+
+  terminate() {
+    this.worker.terminate();
+  }
 }

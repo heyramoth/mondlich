@@ -52,5 +52,9 @@ export class WorkerContext<T extends ParticleSystem> extends ExecutionContext<T>
       };
     }
   }
+
+  terminate () {
+    this.worker.terminate();
+  }
 }
 

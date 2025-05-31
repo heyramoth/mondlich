@@ -179,4 +179,29 @@ export class MainThreadParticlePool extends ParticlePool {
       this.reset(i);
     }
   }
+
+  cleanup(): void {
+    // not good for typing but lets help GC
+    // @ts-ignore
+    this.positions = null;
+    // @ts-ignore
+    this.velocities = null;
+    // @ts-ignore
+    this.sizes = null;
+    // @ts-ignore
+    this.masses = null;
+    // @ts-ignore
+    this.decays = null;
+    // @ts-ignore
+    this.lives = null;
+    // @ts-ignore
+    this.gravities = null;
+    // @ts-ignore
+    this.aliveStatus = null;
+    // @ts-ignore
+    this.colors = null;
+    this.conditionCallbacks.clear();
+    this.actionCallbacks.clear();
+    this.effectCallbacks.clear();
+  }
 }
