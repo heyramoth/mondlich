@@ -1,27 +1,6 @@
 import { ParticlePool } from '@/lib/core/particlePool';
 import { ParticlePhysics } from '../ParticlePhysics';
 
-export type TParticleData = {
-  x: number,
-  y: number,
-  z: number,
-  vx: number,
-  vy: number,
-  vz: number,
-  mass: number,
-  alive: boolean,
-  size: number,
-  decay: number,
-  life: number,
-  gravity: number,
-  r: number,
-  g: number,
-  b: number,
-  condition: (data: TParticleData, dt: number, time: number) => boolean,
-  action: (data: TParticleData, dt: number, time: number) => void,
-  effect: (data: TParticleData, dt: number, time: number) => void,
-};
-
 export class SimpleParticlePhysics extends ParticlePhysics {
   update(dt: number, i: number, pool: ParticlePool): void {
     const posIdx = i * 3;
@@ -41,42 +20,15 @@ export class SimpleParticlePhysics extends ParticlePhysics {
     Fx = isNaN(Fx) ? 0 : Fx;
     Fy = isNaN(Fy) ? 0 : Fy;
     Fz = isNaN(Fz) ? 0 : Fz;
-    if (Fx === undefined) {
-      debugger;
-    }
-    if (Fy === undefined) {
-      debugger;
-    }
-    if (Fz === undefined) {
-      debugger;
-    }
+
     const ax = Fx / pool.masses[i];
     const ay = pool.gravities[i] + (Fy / pool.masses[i]);
     const az = Fz / pool.masses[i];
-    if (isNaN(ax)) {
-      debugger;
-    }
-    if (isNaN(ay)) {
-      debugger;
-    }
-    if (isNaN(az)) {
-      debugger;
-    }
+
     pool.velocities[velIdx] += ax * dt;
     pool.velocities[velIdx + 1] += ay * dt;
     pool.velocities[velIdx + 2] += az * dt;
-    if (isNaN(pool.velocities[velIdx])) {
-      console.log(pool.getParticle(i));
-      debugger;
-    }
-    if (isNaN(pool.velocities[velIdx + 1])) {
-      console.log(pool.getParticle(i));
-      debugger;
-    }
-    if (isNaN(pool.velocities[velIdx + 2])) {
-      console.log(pool.getParticle(i));
-      debugger;
-    }
+
     pool.positions[posIdx] += pool.velocities[velIdx] * dt * 100;
     pool.positions[posIdx + 1] += pool.velocities[velIdx + 1] * dt * 100;
     pool.positions[posIdx + 2] += pool.velocities[velIdx + 2] * dt * 100;

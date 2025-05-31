@@ -1,4 +1,5 @@
-import { SimpleParticlePhysics, TParticleData } from '@/lib/core/ParticlePhysics/SimpleParticlePhysics';
+import { TParticleData } from '@/lib/core/domain/types';
+import { SimpleParticlePhysics } from '@/lib/core/ParticlePhysics/SimpleParticlePhysics';
 import { ParticlePhysics } from '@/lib/core/ParticlePhysics/ParticlePhysics';
 
 function isSharedArrayBufferAvailable(): boolean {
@@ -30,6 +31,7 @@ export class ParticlePool {
     this.physics = new SimpleParticlePhysics();
 
     const useSharedArrayBuffer = isSharedArrayBufferAvailable();
+    console.log(`Ininializing buffer: ${useSharedArrayBuffer ? 'SharedArrayBuffer' : 'ArrayBuffer'}`);
     const bufferType = useSharedArrayBuffer ? SharedArrayBuffer : ArrayBuffer;
     this.positions = new Float32Array(new bufferType(particlesCount * 3 * 4));
     this.velocities = new Float32Array(new bufferType(particlesCount * 3 * 4));

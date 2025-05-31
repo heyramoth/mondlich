@@ -1,8 +1,9 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 import path from 'path';
 import { fileURLToPath } from "url";
 import eslint from 'vite-plugin-eslint';
 import dts from 'vite-plugin-dts';
+import crossOriginIsolation from './.vite-plugins/crossOriginIsolationPlugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +12,7 @@ export default defineConfig({
     plugins: [
         eslint(),
         dts({  rollupTypes: true, tsconfigPath: "./tsconfig.json",}),
+        crossOriginIsolation(),
     ],
     build: {
         lib: {

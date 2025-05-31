@@ -2,7 +2,7 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { vec3 } from 'gl-matrix';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { FireworkSystemSettings } from './domain/fireworkSystemSettings';
-import { TParticleData } from '@/lib/core/ParticlePhysics/SimpleParticlePhysics';
+import { TParticleData } from '@/lib/core/domain/types';
 
 export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
   readonly settings: FireworkSystemSettings = new FireworkSystemSettings();
@@ -36,9 +36,6 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
         break;
     }
     for (let i = 0; i < max; i++) {
-      if (isNaN(vx)) {
-        console.log('WARNINGEEE');
-      }
       pool.add({
         x: particle.x,
         y: particle.y,
@@ -91,9 +88,6 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
         g = color[1];
         b = color[2];
       }
-      if (isNaN(vx)) {
-        console.log('WARNINGEEE');
-      }
       pool.add({
         x: particle.x,
         y: particle.y,
@@ -127,9 +121,6 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
       const vx = 1 - Math.random() * 2;
       const vz = 1 - Math.random() * 2;
       const life = 0.1 + Math.random();
-      if (isNaN(vx)) {
-        console.log('WARNINGEEE');
-      }
       pool.add({
         x: particle.x,
         y: particle.y,
@@ -270,9 +261,6 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
               vy *= speed;
               vz *= speed;
               break;
-          }
-          if (isNaN(vx)) {
-            console.log('WARNINGEEE');
           }
           const particleIndex = pool.add({
             x: particle.x,
