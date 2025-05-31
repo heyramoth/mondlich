@@ -1,18 +1,19 @@
 import { ParticleSystem } from '@/lib/core/particleSystem';
 import { vec3 } from 'gl-matrix';
-import { Particle } from '@/lib/core/particle';
 import { ParticlePool } from '@/lib/core/particlePool';
 import { FireworkSystemSettings } from './domain/fireworkSystemSettings';
+import { TParticleData } from '@/lib/core/domain/types';
 
 export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
   readonly settings: FireworkSystemSettings = new FireworkSystemSettings();
 
   shellEffect(
-    particle: Particle,
+    particle: TParticleData,
     dt: number,
     time: number,
     seed: number,
     pool: ParticlePool,
+    particleIndex: number,
   ): void {
     let max = 1;
     let vx = 0;
@@ -22,15 +23,13 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
         max = Math.random() * 30;
         break;
       case 2:
-        particle.x += Math.cos(Math.PI * 2 * time) * Math.random() * 3;
-        particle.z += Math.sin(Math.PI * 2 * time) * Math.random() * 3;
+        pool.updateParticle(particleIndex, {
+          x: particle.x + Math.cos(Math.PI * 2 * time) * Math.random() * 3,
+          z: particle.z + Math.sin(Math.PI * 2 * time) * Math.random() * 3,
+        });
         break;
       case 3:
-        if (Math.random() > 0.5) {
-          particle.size = 150;
-        } else {
-          particle.size = 10;
-        }
+        pool.updateParticle(particleIndex, { size: Math.random() > 0.5 ? 150 : 10 });
         max = Math.random() * 10;
         vx = 2 - Math.random() * 4;
         vz = 2 - Math.random() * 4;
@@ -56,7 +55,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
   };
 
   crackleEffect(
-    particle: Particle,
+    particle: TParticleData,
     dt: number,
     time: number,
     seed: number,
@@ -95,21 +94,21 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
         z: particle.z,
         size: size,
         mass: 0.02,
-        gravity: gravity,
-        r: r,
-        g: g,
-        b: b,
-        vy: vy,
-        vx: vx,
-        vz: vz,
-        life: life,
+        gravity,
+        r,
+        g,
+        b,
+        vy,
+        vx,
+        vz,
+        life,
         decay: Math.random() * 50,
       });
     }
   };
 
   explodeEffect(
-    particle: Particle,
+    particle: TParticleData,
     dt: number,
     time: number,
     seed: number,
@@ -139,41 +138,38 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
   };
 
   flairEffect(
-    particle: Particle,
+    particle: TParticleData,
     dt: number,
     time: number,
     seed: number,
     color: vec3,
     size: number,
     pool: ParticlePool,
+    particleIndex: number,
   ): void {
     let r = 1.0;
     let g = 0;
     let b = 0;
     switch (seed) {
       case 1:
-        if (Math.random() > 0.5) {
-          particle.size = 250;
-        } else {
-          particle.size = 10;
-        }
+        pool.updateParticle(particleIndex, { size: Math.random() > 0.5 ? 250 : 10 });
         break;
       case 2:
         if (particle.vy < 0) {
-          particle.x += Math.cos(Math.PI * 2 * time) * Math.random() * 3;
-          particle.z += Math.sin(Math.PI * 2 * time) * Math.random() * 3;
+          pool.updateParticle(particleIndex, {
+            x: particle.x + Math.cos(Math.PI * 2 * time) * Math.random() * 3,
+            z: particle.z + Math.sin(Math.PI * 2 * time) * Math.random() * 3,
+          });
         }
         break;
       case 3:
+        pool.updateParticle(particleIndex, { size: Math.random() > 0.5 ? 150 : 10 });
         if (Math.random() > 0.5) {
-          particle.size = 150;
-        } else {
-          particle.size = 10;
-        }
-        if (Math.random() > 0.5) {
-          r = color[0];
-          g = color[1];
-          b = color[2];
+          pool.updateParticle(particleIndex, {
+            r: color[0],
+            g: color[1],
+            b: color[2],
+          });
         }
         break;
     }
@@ -181,7 +177,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     if (size > 250 && particle.life < 1.0) {
       if (Math.random() < 0.05) {
         this.crackleEffect(particle, dt, time, seed, color, pool);
-        particle.reset();
+        pool.reset(particleIndex);
       }
     }
 
@@ -209,10 +205,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
 
     const seed = Math.random() * 4 | 0;
 
-    pool.add({
-      effect: (particle: Particle, dt: number, time: number) => {
-        this.shellEffect(particle, dt, time, seed, pool);
-      },
+    const particleIndex = pool.add({
       x: launchPos[0],
       y: launchPos[1],
       z: launchPos[2],
@@ -226,10 +219,10 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
       b: color[2],
       life: 20,
       decay: 10 + Math.random() * 20,
-      condition: (particle: Particle) => {
+      condition: (particle: TParticleData) => {
         return particle.vy <= -Math.random() * 20;
       },
-      action: (particle: Particle, dt: number, time: number) => {
+      action: (particle: TParticleData, dt: number, time: number) => {
         this.explodeEffect(particle, dt, time, seed, pool);
 
         const grav = -0.1 - Math.random() * 2;
@@ -269,11 +262,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
               vz *= speed;
               break;
           }
-
-          pool.add({
-            effect: (particle: Particle, dt: number, time: number) => {
-              this.flairEffect(particle, dt, time, seed, color, size, pool);
-            },
+          const particleIndex = pool.add({
             x: particle.x,
             y: particle.y,
             z: particle.z,
@@ -289,7 +278,17 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
             life: 0.5 + Math.random() * maxLife,
             decay: Math.random() * 100,
           });
+          pool.updateParticle(particleIndex, {
+            effect: (particle: TParticleData, dt: number, time: number) => {
+              this.flairEffect(particle, dt, time, seed, color, size, pool, particleIndex);
+            },
+          });
         }
+      },
+    });
+    pool.updateParticle(particleIndex, {
+      effect: (particle: TParticleData, dt: number, time: number) => {
+        this.shellEffect(particle, dt, time, seed, pool, particleIndex);
       },
     });
   };
