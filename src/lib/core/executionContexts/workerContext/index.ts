@@ -2,6 +2,7 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { ExecutionContext } from '@/lib/core/executionContexts/executionContext';
 import { ParticleEffect } from '@/lib';
 import { WorkerWrapper } from '@/lib/core/workerManager/domain/workerWrapper';
+import { isSharedArrayBufferAvailable } from '@/lib/utils/isSharedArrayBufferAvailable';
 
 export class WorkerContext<T extends ParticleSystem> extends ExecutionContext<T> {
   constructor(private worker: WorkerWrapper) {
@@ -23,7 +24,7 @@ export class WorkerContext<T extends ParticleSystem> extends ExecutionContext<T>
       aliveStatus: poolData.aliveStatus,
     };
 
-    const isSharedArrayBuffer = data.positions.buffer instanceof SharedArrayBuffer;
+    const isSharedArrayBuffer = isSharedArrayBufferAvailable() && data.positions.buffer instanceof SharedArrayBuffer;
     const transfer = isSharedArrayBuffer ? [] : [
       data.positions.buffer,
       data.velocities.buffer,

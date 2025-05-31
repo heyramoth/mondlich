@@ -2,10 +2,7 @@ import { TParticleCallbacks, TParticleData } from '@/lib/core/domain/types';
 import { SimpleParticlePhysics } from '@/lib/core/ParticlePhysics/SimpleParticlePhysics';
 import { ParticlePhysics } from '@/lib/core/ParticlePhysics/ParticlePhysics';
 import { ParticlePool } from '@/lib/core/particlePool/ParticlePool';
-
-function isSharedArrayBufferAvailable(): boolean {
-  return typeof SharedArrayBuffer !== 'undefined' && self.crossOriginIsolated;
-}
+import { isSharedArrayBufferAvailable } from '@/lib/utils/isSharedArrayBufferAvailable';
 
 export class MainThreadParticlePool extends ParticlePool {
   current: number;

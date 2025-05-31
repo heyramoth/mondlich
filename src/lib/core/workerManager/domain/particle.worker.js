@@ -1,4 +1,5 @@
 import { WorkerParticlePool } from '../../particlePool/WorkerParticlePool';
+import { isSharedArrayBufferAvailable } from '@/lib/utils/isSharedArrayBufferAvailable.js';
 
 self.onmessage = function (e) {
   const {
@@ -42,7 +43,7 @@ self.onmessage = function (e) {
     lives: pool.lives,
   };
 
-  const isSharedArrayBuffer = positions.buffer instanceof SharedArrayBuffer;
+  const isSharedArrayBuffer = isSharedArrayBufferAvailable() && positions.buffer instanceof SharedArrayBuffer;
   const transfer = isSharedArrayBuffer ? [] : [
     data.positions.buffer,
     data.sizes.buffer,
