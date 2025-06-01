@@ -5,7 +5,7 @@ import { WorkerWrapper } from '@/lib/core/workerManager/domain/workerWrapper';
 import { isSharedArrayBufferAvailable } from '@/lib/utils/isSharedArrayBufferAvailable';
 
 export class WorkerContext<T extends ParticleSystem> extends ExecutionContext<T> {
-  constructor(private worker: WorkerWrapper) {
+  constructor(readonly worker: WorkerWrapper) {
     super();
   }
 

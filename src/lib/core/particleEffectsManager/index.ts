@@ -15,7 +15,7 @@ const DEFAULT_SPAWN_FRAMESPAN = 10;
 export class ParticleEffectsManager {
   private contextManager: ExecutionContextManager;
   private renderer: MondlichRenderer;
-  private effectsData: Map<ParticleEffect<never>, RenderData> = new Map<ParticleEffect<never>, RenderData>();
+  private effectsData: Map<ParticleEffect<any>, RenderData> = new Map<ParticleEffect<any>, RenderData>();
   readonly textureManager: TextureManager = new TextureManager();
 
   constructor(private readonly adapter: EngineAdapter) {
@@ -42,12 +42,8 @@ export class ParticleEffectsManager {
   }
 
   async update(): Promise<void> {
-    const updates = Array.from(this.effectsData.keys()).map(effect => {
-      const context = this.contextManager.getContext(effect);
-      return effect.update(context);
-    });
-
-    await Promise.all(updates);
+    const effects = Array.from(this.effectsData.keys());
+    return this.contextManager.update(effects);
   }
 
   render(): void {
