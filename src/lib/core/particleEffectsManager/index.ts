@@ -33,9 +33,11 @@ export class ParticleEffectsManager {
       renderData.dispose(); // release GPU resources
       this.effectsData.delete(effect);
     }
+    this.contextManager.terminateContext(effect);
+    effect.cleanup();
   }
 
-  setWorkerEnabled(effect: ParticleEffect<never>, enabled: boolean): void {
+  setWorkerEnabled<T extends ParticleSystem>(effect: ParticleEffect<T>, enabled: boolean): void {
     this.contextManager.setWorkerEnabled(effect, enabled);
   }
 

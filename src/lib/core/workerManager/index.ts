@@ -1,15 +1,15 @@
 import { WorkerWrapper } from './domain/workerWrapper';
+import workerUrl from '@/lib/core/workerManager/domain/particle.worker.js?worker&url';
 
 export class WorkerManager {
   private workers: WorkerWrapper[] = [];
-  private workerScriptUrl: URL;
   private poolSize = Math.floor(navigator.hardwareConcurrency * 0.5) || 1;
 
   // TODO: заменить на this.poolSize
   constructor(poolSize: number = 1) {
-    this.workerScriptUrl = new URL('./domain/particle.worker.js', import.meta.url);
+    const resolvedWorkerUrl = new URL(workerUrl, import.meta.url);
     this.workers = Array.from(
-      { length: poolSize }, () => new WorkerWrapper(this.workerScriptUrl),
+      { length: poolSize }, () => new WorkerWrapper(resolvedWorkerUrl),
     );
   }
 

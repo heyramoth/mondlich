@@ -1,8 +1,8 @@
 import { ParticleSystem } from '@/lib/core/particleSystem';
 import { vec3 } from 'gl-matrix';
-import { ParticlePool } from '@/lib/core/particlePool';
 import { FireworkSystemSettings } from './domain/fireworkSystemSettings';
 import { TParticleData } from '@/lib/core/domain/types';
+import { MainThreadParticlePool } from '@/lib/core/particlePool/MainThreadParticlePool';
 
 export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
   readonly settings: FireworkSystemSettings = new FireworkSystemSettings();
@@ -12,7 +12,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     dt: number,
     time: number,
     seed: number,
-    pool: ParticlePool,
+    pool: MainThreadParticlePool,
     particleIndex: number,
   ): void {
     let max = 1;
@@ -60,7 +60,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     time: number,
     seed: number,
     color: vec3,
-    pool: ParticlePool,
+    pool: MainThreadParticlePool,
   ): void {
     let r = 0;
     let g = 0;
@@ -112,7 +112,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     dt: number,
     time: number,
     seed: number,
-    pool: ParticlePool,
+    pool: MainThreadParticlePool,
   ): void {
     for (let i = 0; i < 100 + Math.random() * 200; i++) {
       const size = Math.random() * 80;
@@ -144,7 +144,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     seed: number,
     color: vec3,
     size: number,
-    pool: ParticlePool,
+    pool: MainThreadParticlePool,
     particleIndex: number,
   ): void {
     let r = 1.0;
@@ -196,7 +196,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
     });
   };
 
-  launch(pool: ParticlePool): void {
+  launch(pool: MainThreadParticlePool): void {
     const launchPos = this.settings.origin;
     const color: vec3 = this.settings.color;
 

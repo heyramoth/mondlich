@@ -14,6 +14,9 @@ export default defineConfig({
         dts({  rollupTypes: true, tsconfigPath: "./tsconfig.json",}),
         crossOriginIsolation(),
     ],
+    worker: {
+        format: 'es',
+    },
     build: {
         lib: {
             name: 'mondlich',
@@ -38,4 +41,5 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
+    base: './'
 })

@@ -68,7 +68,7 @@ export const setupSingleTextureScene = async (): Promise<void> => {
 
   renderData.createVertexBuffer({
     name: 'aPosition',
-    data: POSITIONS_CONFIG.data,
+    getData: () => POSITIONS_CONFIG.data,
     attributeConfig: {
       size: POSITIONS_CONFIG.attrSize,
       type: gl.FLOAT,
