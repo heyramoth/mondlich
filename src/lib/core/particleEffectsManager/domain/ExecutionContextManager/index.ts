@@ -5,25 +5,34 @@ import { ExecutionContext } from '@/lib/core/executionContexts/executionContext'
 import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContext';
 import { ParticleSystem } from '@/lib/core/particleSystem';
 import { WorkerWrapper } from '@/lib/core/workerManager/domain/workerWrapper';
+import { LeastEffectsStrategy } from '@/lib/core/workerManager/domain/WorkerSelectionStrategy/LeastEffectsStrategy';
 
 export class ExecutionContextManager {
   private contexts = new WeakMap<ParticleEffect<any>, ExecutionContext<any>>();
   private workerManager: WorkerManager;
 
   constructor() {
-    this.workerManager = new WorkerManager();
+    this.workerManager = new WorkerManager(new LeastEffectsStrategy());
   }
 
   setWorkerEnabled<T extends ParticleSystem>(effect: ParticleEffect<T>, enabled: boolean): void {
+    const currentContext = this.contexts.get(effect);
     if (enabled) {
-      if (this.contexts.get(effect) instanceof WorkerContext) {
+      if (currentContext instanceof WorkerContext) {
         return;
       }
       const worker = this.workerManager.getLeastBusyWorker();
+      this.workerManager.assignEffectToWorker(worker);
       this.contexts.set(effect, new WorkerContext(worker));
+      if (currentContext instanceof MainThreadContext) {
+        this.contexts.delete(effect);
+      }
     } else {
-      const currentContext = this.contexts.get(effect);
+      if (currentContext instanceof MainThreadContext) {
+        return;
+      }
       if (currentContext instanceof WorkerContext) {
+        this.workerManager.removeEffectFromWorker(currentContext.worker);
         this.terminateContext(effect);
       }
       this.contexts.set(effect, new MainThreadContext());
