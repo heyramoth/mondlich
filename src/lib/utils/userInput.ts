@@ -145,14 +145,12 @@ export class UserInput {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
-    event.preventDefault();
     if (this.isEventCodeInKeys(event.code)) {
       this.keys[event.code] = true;
     }
   }
 
   private onKeyUp(event: KeyboardEvent): void {
-    event.preventDefault();
     if (this.isEventCodeInKeys(event.code)) {
       this.keys[event.code] = false;
     }
