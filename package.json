@@ -28,7 +28,9 @@
   ],
   "module": "./dist/mondlich.es.js",
   "types": "./dist/mondlich.es.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "import": "./dist/mondlich.es.js"
@@ -76,6 +78,7 @@
   },
   "peerDependencies": {
     "gl-matrix": "^3.4.3",
-    "phaser": "^3.90.0"
+    "phaser": "^3.90.0",
+    "pixi.js": "^8.9.2"
   }
 }

@@ -26,7 +26,7 @@ export default defineConfig({
         },
         emptyOutDir: true,
         rollupOptions: {
-            external: ['gl-matrix', 'phaser'],
+            external: ['gl-matrix', 'phaser', 'pixi.js'],
             output: {
                 exports: 'named',
             },
