@@ -17,7 +17,7 @@ export type TParticleData = {
 };
 
 export type TParticleCallbacks = {
-  condition: (data: TParticleData, dt: number, time: number) => boolean,
+  isActionTriggered: (data: TParticleData, dt: number, time: number) => boolean,
   action: (data: TParticleData, dt: number, time: number) => void,
-  effect: (data: TParticleData, dt: number, time: number) => void,
+  persistentEffect: (data: TParticleData, dt: number, time: number) => void,
 };

@@ -9,4 +9,3 @@ export const GL_CONTEXT_DEFAULT_CONFIG: WebGLContextAttributes = {
   preserveDrawingBuffer: false,
   powerPreference: 'high-performance',
 };
-

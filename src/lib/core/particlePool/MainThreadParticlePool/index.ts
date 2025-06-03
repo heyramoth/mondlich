@@ -15,17 +15,17 @@ export class MainThreadParticlePool extends ParticlePool {
   gravities: Float32Array;
   aliveStatus: Uint8Array;
   colors: Float32Array;
-  conditionCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => boolean>;
-  actionCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => void>;
-  effectCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => void>;
+  isActionTriggeredCallbacks: Map<number, (data: TParticleData, dt: number, time: number) => boolean>;
+  actions: Map<number, (data: TParticleData, dt: number, time: number) => void>;
+  persistentEffects: Map<number, (data: TParticleData, dt: number, time: number) => void>;
   private physics: ParticlePhysics;
 
   constructor(readonly particlesCount: number) {
     super();
     this.current = 0;
-    this.conditionCallbacks = new Map();
-    this.actionCallbacks = new Map();
-    this.effectCallbacks = new Map();
+    this.isActionTriggeredCallbacks = new Map();
+    this.actions = new Map();
+    this.persistentEffects = new Map();
     // todo: make injection
     this.physics = new SimpleParticlePhysics();
 
@@ -87,9 +87,9 @@ export class MainThreadParticlePool extends ParticlePool {
       r: data.r || 1.0,
       g: data.g || 1.0,
       b: data.b || 1.0,
-      condition: data.condition || (() => false),
+      isActionTriggered: data.isActionTriggered || (() => false),
       action: data.action || (() => {}),
-      effect: data.effect || (() => {}),
+      persistentEffect: data.persistentEffect || (() => {}),
     });
 
     return this.current;
@@ -121,9 +121,9 @@ export class MainThreadParticlePool extends ParticlePool {
 
   getParticleCallbacks(i: number): TParticleCallbacks {
     return {
-      condition: this.conditionCallbacks.get(i) || (() => false),
-      action: this.actionCallbacks.get(i) || (() => {}),
-      effect: this.effectCallbacks.get(i) || (() => {}),
+      isActionTriggered: this.isActionTriggeredCallbacks.get(i) || (() => false),
+      action: this.actions.get(i) || (() => {}),
+      persistentEffect: this.persistentEffects.get(i) || (() => {}),
     };
   }
 
@@ -148,9 +148,9 @@ export class MainThreadParticlePool extends ParticlePool {
     if (data.life !== undefined) this.lives[i] = data.life;
     if (data.gravity !== undefined) this.gravities[i] = data.gravity;
 
-    if (data.condition !== undefined) this.conditionCallbacks.set(i, data.condition);
-    if (data.action !== undefined) this.actionCallbacks.set(i, data.action);
-    if (data.effect !== undefined) this.effectCallbacks.set(i, data.effect);
+    if (data.isActionTriggered !== undefined) this.isActionTriggeredCallbacks.set(i, data.isActionTriggered);
+    if (data.action !== undefined) this.actions.set(i, data.action);
+    if (data.persistentEffect !== undefined) this.persistentEffects.set(i, data.persistentEffect);
   }
 
   update(dt: number, i: number): void {
@@ -159,21 +159,21 @@ export class MainThreadParticlePool extends ParticlePool {
 
   reset(i: number): void {
     this.physics.reset(i, this);
-    this.conditionCallbacks.set(i, () => false);
-    this.actionCallbacks.set(i, () => {});
-    this.effectCallbacks.set(i, () => {});
+    this.isActionTriggeredCallbacks.set(i, () => false);
+    this.actions.set(i, () => {});
+    this.persistentEffects.set(i, () => {});
   }
 
   launchEffects(dt: number, time: number, i: number): void {
     const data = this.getParticle(i);
     const callbacks = this.getParticleCallbacks(i);
 
-    if (callbacks.condition(data, dt, time)) {
+    if (callbacks.isActionTriggered(data, dt, time)) {
       callbacks.action(data, dt, time);
       this.reset(i);
     }
 
-    callbacks.effect(data, dt, time);
+    callbacks.persistentEffect(data, dt, time);
 
     if (this.lives[i] <= 0 || this.sizes[i] <= 0) {
       this.reset(i);
@@ -200,8 +200,8 @@ export class MainThreadParticlePool extends ParticlePool {
     this.aliveStatus = null;
     // @ts-ignore
     this.colors = null;
-    this.conditionCallbacks.clear();
-    this.actionCallbacks.clear();
-    this.effectCallbacks.clear();
+    this.isActionTriggeredCallbacks.clear();
+    this.actions.clear();
+    this.persistentEffects.clear();
   }
 }

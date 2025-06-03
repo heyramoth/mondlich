@@ -6,6 +6,7 @@ import { MainThreadContext } from '@/lib/core/executionContexts/mainThreadContex
 import { ParticleSystem } from '@/lib/core/particleSystem';
 import { WorkerWrapper } from '@/lib/core/workerManager/domain/workerWrapper';
 import { LeastEffectsStrategy } from '@/lib/core/workerManager/domain/WorkerSelectionStrategy/LeastEffectsStrategy';
+import { TUpdateTime } from '@/lib/domain/types';
 
 export class ExecutionContextManager {
   private contexts = new WeakMap<ParticleEffect<any>, ExecutionContext<any>>();
@@ -75,11 +76,11 @@ export class ExecutionContextManager {
     ];
   }
 
-  async update(effects: ParticleEffect<any>[]): Promise<void> {
+  async update(effects: ParticleEffect<any>[], externalTime?: TUpdateTime): Promise<void> {
     const groups = this.groupContexts(effects);
     const updates = groups.map(async (group) => {
       for (const [effect, context] of group) {
-        await effect.update(context);
+        await effect.update(context, externalTime);
       }
     });
     await Promise.all(updates);

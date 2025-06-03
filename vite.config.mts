@@ -26,11 +26,14 @@ export default defineConfig({
         },
         emptyOutDir: true,
         rollupOptions: {
-            external: ['gl-matrix'],
+            external: ['gl-matrix', 'phaser'],
             output: {
                 exports: 'named',
             },
         },
+    },
+    optimizeDeps: {
+        exclude: ['phaser']
     },
     server: {
         port: 3000,
@@ -39,6 +42,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
+            'phaser': 'phaser/dist/phaser.esm.js',
         },
     },
     base: './'

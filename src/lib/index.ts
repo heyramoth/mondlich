@@ -14,3 +14,4 @@ export { UserInput } from './utils/userInput';
 export { Timer } from './utils/timer';
 export { MondlichMath } from './utils/mondlichMath';
 export { createWebGLCanvas } from './utils/createWebGLCanvas';
+export { configureRenderingContext } from './utils/configureRenderingContext';

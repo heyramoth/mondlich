@@ -9,6 +9,7 @@ import { TextureManager } from '@/lib/render/textureManager';
 import { createParticleSystemShader } from './application/createParticleSystemShader';
 import { createParticleSystemRenderData } from './application/createParticleSystemRenderData';
 import { ExecutionContextManager } from '@/lib/core/particleEffectsManager/domain/ExecutionContextManager';
+import { TUpdateTime } from '@/lib/domain/types';
 
 const DEFAULT_SPAWN_FRAMESPAN = 10;
 
@@ -41,9 +42,9 @@ export class ParticleEffectsManager {
     this.contextManager.setWorkerEnabled(effect, enabled);
   }
 
-  async update(): Promise<void> {
+  async update(externalTime?: TUpdateTime): Promise<void> {
     const effects = Array.from(this.effectsData.keys());
-    return this.contextManager.update(effects);
+    return this.contextManager.update(effects, externalTime);
   }
 
   render(): void {

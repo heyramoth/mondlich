@@ -3,6 +3,7 @@ import { Timer } from '@/lib/utils';
 import { MAX_FPS } from '@/lib/domain/constants';
 import { ExecutionContext } from '@/lib/core/executionContexts/executionContext';
 import { MainThreadParticlePool } from '@/lib/core/particlePool/MainThreadParticlePool';
+import { TUpdateTime } from '@/lib/domain/types';
 
 type TSystemSettings<T> = T extends ParticleSystem<infer S> ? S : never;
 
@@ -53,10 +54,11 @@ export class ParticleEffect<T extends ParticleSystem> {
     });
   }
 
-  async update(context: ExecutionContext): Promise<void> {
+  async update(context: ExecutionContext, externalTime?: TUpdateTime): Promise<void> {
     if (!this.timer.isRunning) return Promise.resolve();
-    const time = Date.now() * 0.001;
-    this.frameDelta += this.timer.getDelta();
+
+    const time = externalTime ? externalTime.time : Date.now() * 0.001;
+    this.frameDelta += externalTime ? externalTime.delta : this.timer.getDelta();
 
     if (this.spawnFramespan) {
       this.spawnCounter += 1;
@@ -67,7 +69,6 @@ export class ParticleEffect<T extends ParticleSystem> {
     }
 
     while(this.frameDelta >= 1 / MAX_FPS) {
-      // physics calculation
       await context.updateParticles(this, time);
       this.launchParticleEffects(this.frameDelta, time);
       this.frameDelta -= 1 / MAX_FPS;

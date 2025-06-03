@@ -1,6 +1,6 @@
 {
   "name": "mondlich",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "type": "module",
   "description": "cross-engine vfx library",
   "private": false,
@@ -75,6 +75,7 @@
     "vite-plugin-eslint": "^1.8.1"
   },
   "peerDependencies": {
-    "gl-matrix": "^3.4.3"
+    "gl-matrix": "^3.4.3",
+    "phaser": "^3.90.0"
   }
 }

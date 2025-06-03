@@ -219,7 +219,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
       b: color[2],
       life: 20,
       decay: 10 + Math.random() * 20,
-      condition: (particle: TParticleData) => {
+      isActionTriggered: (particle: TParticleData) => {
         return particle.vy <= -Math.random() * 20;
       },
       action: (particle: TParticleData, dt: number, time: number) => {
@@ -279,7 +279,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
             decay: Math.random() * 100,
           });
           pool.updateParticle(particleIndex, {
-            effect: (particle: TParticleData, dt: number, time: number) => {
+            persistentEffect: (particle: TParticleData, dt: number, time: number) => {
               this.flairEffect(particle, dt, time, seed, color, size, pool, particleIndex);
             },
           });
@@ -287,7 +287,7 @@ export class FireworkSystem extends ParticleSystem<FireworkSystemSettings> {
       },
     });
     pool.updateParticle(particleIndex, {
-      effect: (particle: TParticleData, dt: number, time: number) => {
+      persistentEffect: (particle: TParticleData, dt: number, time: number) => {
         this.shellEffect(particle, dt, time, seed, pool, particleIndex);
       },
     });
