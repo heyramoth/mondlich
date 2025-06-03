@@ -36,53 +36,6 @@ const config = {
 export class FireSystem extends ParticleSystem<FireSystemSettings> {
   readonly settings: FireSystemSettings = new FireSystemSettings();
 
-  shellEffect(
-    particle: TParticleData,
-    dt: number,
-    time: number,
-    seed: number,
-    pool: MainThreadParticlePool,
-    particleIndex: number,
-  ): void {
-    let max = 1;
-    let vx = 0;
-    let vz = 0;
-    switch (seed) {
-      case 1:
-        max = Math.random() * 30;
-        break;
-      case 2:
-        pool.updateParticle(particleIndex, {
-          x: particle.x + Math.cos(Math.PI * 2 * time) * Math.random() * 3,
-          z: particle.z + Math.sin(Math.PI * 2 * time) * Math.random() * 3,
-        });
-        break;
-      case 3:
-        pool.updateParticle(particleIndex, { size: Math.random() > 0.5 ? 150 : 10 });
-        max = Math.random() * 10;
-        vx = 2 - Math.random() * 4;
-        vz = 2 - Math.random() * 4;
-        break;
-    }
-    for (let i = 0; i < max; i++) {
-      pool.add({
-        x: particle.x,
-        y: particle.y,
-        z: particle.z,
-        mass: 0.002,
-        gravity: -0.2,
-        size: 20 + Math.random() * 40,
-        vx: vx,
-        vz: vz,
-        r: this.settings.color[0],
-        g: this.settings.color[1],
-        b: this.settings.color[2],
-        life: Math.random() * 3,
-        decay: 50,
-      });
-    }
-  };
-
   launch(pool: MainThreadParticlePool): void {
     const launchPos = this.settings.origin;
 

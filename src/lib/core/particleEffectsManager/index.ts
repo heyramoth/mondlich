@@ -3,7 +3,9 @@ import { ParticleSystemSettings } from '@/lib/core/particleSystem/domain/particl
 import { ParticleSystem } from '@/lib/core/particleSystem';
 import { ParticleEffect } from '@/lib/core';
 import { EngineAdapter } from '@/lib/adapters';
-import { FireSystem, FireworkSystem } from '@/lib/core/particleSystem/behaviors';
+import {
+  FireSystem, FireworkSystem, FountainSystem,
+} from '@/lib/core/particleSystem/behaviors';
 import { TextureManager } from '@/lib/render/textureManager';
 
 import { createParticleSystemShader } from './application/createParticleSystemShader';
@@ -103,6 +105,28 @@ export class ParticleEffectsManager {
     spawnFramespan?: number,
   }): ParticleEffect<FireSystem> {
     const system = new FireSystem();
+
+    const shader = createParticleSystemShader(this.adapter.gl);
+    const htmlTexture = this.textureManager.getTexture('spark');
+
+    return this.createEffect({
+      system,
+      particlesCount: options.particlesCount,
+      spawnFramespan: options.spawnFramespan || DEFAULT_SPAWN_FRAMESPAN,
+      createRenderData: (effect: ParticleEffect<never>) => createParticleSystemRenderData({
+        gl: this.adapter.gl,
+        shader,
+        effect,
+        htmlTexture,
+      }),
+    });
+  }
+
+  createFountain(options: {
+    particlesCount: number,
+    spawnFramespan?: number,
+  }): ParticleEffect<FountainSystem> {
+    const system = new FountainSystem();
 
     const shader = createParticleSystemShader(this.adapter.gl);
     const htmlTexture = this.textureManager.getTexture('spark');
