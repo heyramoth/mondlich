@@ -1,5 +1,5 @@
-import { setupDynamicFireworksScene } from '@/playground';
+import { setupFireScene } from '@/playground';
 
 console.log('Hello. Setting up playground...');
 
-setupDynamicFireworksScene();
+setupFireScene();
