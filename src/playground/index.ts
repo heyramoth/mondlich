@@ -3,3 +3,4 @@ export { setupSingleTextureScene } from './singleTextureScene/index';
 export { setupFireworksScene } from './fireworksScene/index';
 export { setupDynamicFireworksScene } from './dynamicFireworksScene/index';
 export { setupFireScene } from './fireScene';
+export { setupTestScene } from './testScene';
