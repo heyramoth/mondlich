@@ -28,14 +28,17 @@ export const setupTestScene = async (): Promise<void> => {
     ...DEFAULT_CANVAS_SIZE,
   });
 
+  const manager = new ParticleEffectsManager();
+  await manager.textureManager.loadTextureLibrary();
+
   const engine = new MondlichEngine(canvas);
   const adapter = new MondlichAdapter(engine);
-  const manager = new ParticleEffectsManager(adapter);
+  manager.setAdapter(adapter);
+
 
   engine.camera.moveEye([0, -550, -20]);
   engine.camera.moveLookAt([0, -1100, -500]);
 
-  await manager.textureManager.loadTextureLibrary();
   const fire = manager.createFire({
     particlesCount: 20000,
     spawnFramespan: 1,

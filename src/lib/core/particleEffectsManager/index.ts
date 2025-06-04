@@ -4,7 +4,7 @@ import { ParticleSystem } from '@/lib/core/particleSystem';
 import { ParticleEffect } from '@/lib/core';
 import { EngineAdapter } from '@/lib/adapters';
 import {
-  FireSystem, FireworkSystem, FountainSystem,
+  FireSystem, FireworkSystem, FountainSystem, SmokeSystem,
 } from '@/lib/core/particleSystem/behaviors';
 import { TextureManager } from '@/lib/render/textureManager';
 
@@ -18,12 +18,25 @@ const DEFAULT_SPAWN_FRAMESPAN = 10;
 export class ParticleEffectsManager {
   private contextManager: ExecutionContextManager;
   private renderer: MondlichRenderer;
+  private _adapter: EngineAdapter | undefined;
   private effectsData: Map<ParticleEffect<any>, RenderData> = new Map<ParticleEffect<any>, RenderData>();
   readonly textureManager: TextureManager = new TextureManager();
 
-  constructor(private readonly adapter: EngineAdapter) {
+  constructor(adapter?: EngineAdapter) {
+    if (adapter) {
+      this._adapter = adapter;
+    }
     this.renderer = new MondlichRenderer(adapter);
     this.contextManager = new ExecutionContextManager();
+  }
+
+  setAdapter(adapter: EngineAdapter) {
+    this._adapter = adapter;
+    this.renderer.setAdapter(adapter);
+  }
+
+  get adapter () {
+    return this._adapter;
   }
 
   addEffect(effect: ParticleEffect<never>, renderData: RenderData): void {
@@ -81,6 +94,8 @@ export class ParticleEffectsManager {
     particlesCount: number,
     spawnFramespan?: number,
   }): ParticleEffect<FireworkSystem> {
+    if (!this.adapter) throw new Error('Register adapter before effect creation');
+
     const system = new FireworkSystem();
 
     const shader = createParticleSystemShader(this.adapter.gl);
@@ -92,7 +107,7 @@ export class ParticleEffectsManager {
       spawnFramespan: options.spawnFramespan || DEFAULT_SPAWN_FRAMESPAN,
       // хреново получается, как-то криво
       createRenderData: (effect: ParticleEffect<never>) => createParticleSystemRenderData({
-        gl: this.adapter.gl,
+        gl: this.adapter!.gl,
         shader,
         effect,
         htmlTexture,
@@ -104,17 +119,19 @@ export class ParticleEffectsManager {
     particlesCount: number,
     spawnFramespan?: number,
   }): ParticleEffect<FireSystem> {
+    if (!this.adapter) throw new Error('Register adapter before effect creation');
+
     const system = new FireSystem();
 
     const shader = createParticleSystemShader(this.adapter.gl);
-    const htmlTexture = this.textureManager.getTexture('spark');
+    const htmlTexture = this.textureManager.getTexture('flame');
 
     return this.createEffect({
       system,
       particlesCount: options.particlesCount,
       spawnFramespan: options.spawnFramespan || DEFAULT_SPAWN_FRAMESPAN,
       createRenderData: (effect: ParticleEffect<never>) => createParticleSystemRenderData({
-        gl: this.adapter.gl,
+        gl: this.adapter!.gl,
         shader,
         effect,
         htmlTexture,
@@ -126,17 +143,43 @@ export class ParticleEffectsManager {
     particlesCount: number,
     spawnFramespan?: number,
   }): ParticleEffect<FountainSystem> {
+    if (!this.adapter) throw new Error('Register adapter before effect creation');
+
     const system = new FountainSystem();
 
     const shader = createParticleSystemShader(this.adapter.gl);
-    const htmlTexture = this.textureManager.getTexture('spark');
+    const htmlTexture = this.textureManager.getTexture('diamond');
 
     return this.createEffect({
       system,
       particlesCount: options.particlesCount,
       spawnFramespan: options.spawnFramespan || DEFAULT_SPAWN_FRAMESPAN,
       createRenderData: (effect: ParticleEffect<never>) => createParticleSystemRenderData({
-        gl: this.adapter.gl,
+        gl: this.adapter!.gl,
+        shader,
+        effect,
+        htmlTexture,
+      }),
+    });
+  }
+
+  createSmoke(options: {
+    particlesCount: number,
+    spawnFramespan?: number,
+  }): ParticleEffect<SmokeSystem> {
+    if (!this.adapter) throw new Error('Register adapter before effect creation');
+
+    const system = new SmokeSystem();
+
+    const shader = createParticleSystemShader(this.adapter.gl);
+    const htmlTexture = this.textureManager.getTexture('smoke');
+
+    return this.createEffect({
+      system,
+      particlesCount: options.particlesCount,
+      spawnFramespan: options.spawnFramespan || DEFAULT_SPAWN_FRAMESPAN,
+      createRenderData: (effect: ParticleEffect<never>) => createParticleSystemRenderData({
+        gl: this.adapter!.gl,
         shader,
         effect,
         htmlTexture,

@@ -1,4 +1,10 @@
 import SparkImg from '@/assets/textures/spark.png';
+import Spark2Img from '@/assets/textures/spark-emoji.png';
+import ClownImg from '@/assets/textures/clown-emoji.png';
+import DiamondImg from '@/assets/textures/diamond-emoji.png';
+import SmokeImg from '@/assets/textures/smoke.png';
+import Smoke2Img from '@/assets/textures/smoke2.png';
+import FlameImg from '@/assets/textures/flame.png';
 
 export class TextureManager {
   private textureCache: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
@@ -24,9 +30,16 @@ export class TextureManager {
     return texture;
   }
 
+  // todo: add load-on-demand
   public loadTextureLibrary(): Promise<HTMLImageElement[]> {
     return Promise.all([
       this.loadImage('spark', SparkImg),
+      this.loadImage('spark2', Spark2Img),
+      this.loadImage('clown', ClownImg),
+      this.loadImage('diamond', DiamondImg),
+      this.loadImage('smoke', SmokeImg),
+      this.loadImage('smoke2', Smoke2Img),
+      this.loadImage('flame', FlameImg),
     ]);
   }
 }

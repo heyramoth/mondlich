@@ -2,16 +2,29 @@ import { RenderData } from '@/lib/render';
 import { EngineAdapter } from '@/lib/adapters';
 
 export class MondlichRenderer {
-  constructor(private readonly adapter: EngineAdapter) {
-    this.adapter = adapter;
+  private _adapter: EngineAdapter | undefined;
+
+  constructor(adapter?: EngineAdapter) {
+    if (adapter) {
+      this.setAdapter(adapter);
+    }
+  }
+
+  get adapter () {
+    return this._adapter;
+  }
+
+  setAdapter(adapter: EngineAdapter) {
+    console.log('Renderer adapter has been set');
+    this._adapter = adapter;
   }
 
   render(renderData: RenderData): void {
-    if (!this.adapter) return;
+    if (!this.adapter) throw new Error('Register adapter before rendering');
 
     this.adapter.executeInGLContext((gl: WebGLRenderingContext) => {
       renderData.shaderProgram.use();
-      renderData.shaderProgram.updateUniforms(this.adapter);
+      renderData.shaderProgram.updateUniforms(this.adapter!);
 
       this.draw({
         gl,
