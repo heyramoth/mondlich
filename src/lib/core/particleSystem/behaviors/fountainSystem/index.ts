@@ -3,6 +3,7 @@ import { getInInterval } from '@/lib/core/domain/getInInterval';
 import { FountainSystemSettings } from './domain/fountainSystemSettings';
 import { MainThreadParticlePool } from '@/lib/core/particlePool/MainThreadParticlePool';
 import { TParticleData } from '@/lib/core/domain/types';
+import { MondlichMath } from '@/lib';
 
 const config = {
   size: {
@@ -16,11 +17,6 @@ const config = {
   decay: {
     min: 20,
     max: 60,
-  },
-  color: {
-    r: 1,
-    g: 1,
-    b: 1,
   },
   mass:  0.002,
   x: {
@@ -90,35 +86,38 @@ export class FountainSystem extends ParticleSystem<FountainSystemSettings> {
     const size = 20 + Math.random() * Math.min(5, this.maxSize);
     this.maxSize += 10;
 
-    for (let i = 0; i < 200 + Math.random() * 200; i++) {
-      const vx = getInInterval({
-        min: 1,
-        max: -1,
-      } );
+    for (let i = 0; i < 300 * (1 + Math.random()); i++) {
+      const xz = MondlichMath.randomPointOnCircle(2);
 
       const vy = getInInterval({
-        min: 1,
-        max: 3,
+        min: 2.5,
+        max: 3.5,
       } );
 
-      const vz = getInInterval({
-        min: 1,
-        max: -1,
-      } );
-      pool.add({
+      const newSize = 0.25 * size * (1 + Math.random());
+      const newInd = pool.add({
         x: this.settings.origin[0],
         y: this.settings.origin[1],
         z: this.settings.origin[2],
-        size: 0.2 * size * (1 + Math.random()),
-        mass: 10,
+        size: size,
+        mass: 0.2,
         gravity: -0.9,
-        vx,
+        vx: xz[0],
         vy,
-        vz,
-        life: 10 + 20 * Math.random(),
-        decay: Math.random(),
+        vz: xz[1],
+        r: this.settings.color[0],
+        g: this.settings.color[1],
+        b: this.settings.color[2],
+        life: Math.random(),
+        decay: 1,
+      });
+      pool.updateParticle(newInd, {
+        persistentEffect: (particle: TParticleData, dt: number, time: number) => {
+          this.flairEffect(particle, dt, time, seed,newSize * 0.5, pool, newInd);
+        },
       });
     }
+
     const idx = pool.add({
       x: this.settings.origin[0],
       y: this.settings.origin[1],
@@ -128,7 +127,9 @@ export class FountainSystem extends ParticleSystem<FountainSystemSettings> {
       vz: 0,
       vx: 0,
       vy: 10 + Math.min(size * 0.1, 7),
-      ...config.color,
+      r: this.settings.color[0],
+      g: this.settings.color[1],
+      b: this.settings.color[2],
       life: 10,
       decay: randDecay(),
     });
@@ -183,7 +184,9 @@ export class FountainSystem extends ParticleSystem<FountainSystemSettings> {
               vy: vy,
               vz: vz * 0.5,
               vx: vx * 0.5,
-              ...config.color,
+              r: this.settings.color[0],
+              g: this.settings.color[1],
+              b: this.settings.color[2],
               life: 0.1 + Math.random() * maxLife * 0.5,
               decay: Math.random() * 100,
             });

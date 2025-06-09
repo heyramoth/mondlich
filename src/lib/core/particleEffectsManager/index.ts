@@ -148,7 +148,7 @@ export class ParticleEffectsManager {
     const system = new FountainSystem();
 
     const shader = createParticleSystemShader(this.adapter.gl);
-    const htmlTexture = this.textureManager.getTexture('diamond');
+    const htmlTexture = this.textureManager.getTexture('spark');
 
     return this.createEffect({
       system,

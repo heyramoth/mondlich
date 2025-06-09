@@ -1,5 +1,5 @@
 import {
-  mat4, quat, vec3,
+  mat4, quat, vec2, vec3,
 } from 'gl-matrix';
 
 export class MondlichMath {
@@ -44,6 +44,17 @@ export class MondlichMath {
     vec3.transformMat4(rotatedPoint, point, transformationMat);
 
     return rotatedPoint;
+  }
+
+  public static randomPointOnCircle(radius: number): vec2 {
+    const theta = Math.random() * 2 * Math.PI;
+    const x = radius * Math.cos(theta);
+    const y = radius * Math.sin(theta);
+    return vec2.fromValues(x, y);
+  }
+
+  public static lerp(first: number, second: number, t: number): number {
+    return first + t * (second - first);
   }
 
   // prevents instantiantion

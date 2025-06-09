@@ -2,11 +2,9 @@ import {
   MondlichAdapter,
   MondlichEngine,
   ParticleEffectsManager,
-  Timer,
   UserInput,
-  MondlichMath,
   createWebGLCanvas,
-  configureRenderingContext,
+  configureRenderingContext, Timer, MondlichMath,
 } from '@/lib';
 
 import { vec3 } from 'gl-matrix';
@@ -37,14 +35,21 @@ export const setupFountainScene = async (): Promise<void> => {
 
   await manager.textureManager.loadTextureLibrary();
   const effect = manager.createFountain({
-    particlesCount: 20000,
+    particlesCount: 100000,
     spawnFramespan: 1,
   });
 
   manager.setWorkerEnabled(effect, true);
 
-  const updateEffectsSettings = () => {
-    effect.settings.color = vec3.fromValues(Math.random(), Math.random(), Math.random());
+  const timer = new Timer(false);
+
+  const updateEffectSettings = () => {
+    const t = timer.getElapsedTime();
+    effect.settings.color = vec3.fromValues(
+      MondlichMath.lerp(effect.settings.color[0], Math.random(), t),
+      MondlichMath.lerp(effect.settings.color[1], Math.random(), t),
+      MondlichMath.lerp(effect.settings.color[2], Math.random(), t),
+    );
   };
 
   const userInput = new UserInput({
@@ -58,13 +63,15 @@ export const setupFountainScene = async (): Promise<void> => {
     manager.render();
   };
 
+  timer.start();
   effect.start();
 
   const loop = async () => {
-    updateEffectsSettings();
+
     await manager.update();
     userInput.update();
 
+    updateEffectSettings();
     render();
 
     requestAnimationFrame(loop);

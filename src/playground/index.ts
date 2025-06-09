@@ -4,3 +4,4 @@ export { setupFireworksScene } from './fireworksScene/index';
 export { setupDynamicFireworksScene } from './dynamicFireworksScene/index';
 export { setupFireScene } from './fireScene';
 export { setupTestScene } from './testScene';
+export { setupFountainScene } from './fountainScene';

@@ -1,5 +1,5 @@
-import { setupTestScene } from '@/playground';
+import { setupFountainScene } from '@/playground';
 
 console.log('Hello. Setting up playground...');
 
-setupTestScene();
+setupFountainScene();
