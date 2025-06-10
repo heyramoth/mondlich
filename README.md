@@ -12,8 +12,8 @@ or
 ```npm install mondlich```
 
 ## Basic usage
+### 1. Create canvas for rendering 
 ```
-// 1. Create canvas for rendering
 const canvas: HTMLCanvasElement = document.createElement('canvas');
 
 const { gl, canvas } = createWebGLCanvas({
@@ -25,8 +25,10 @@ configureRenderingContext({
   gl,
   ...DEFAULT_CANVAS_SIZE,
 });
+```
 
-// 2. Initialize particle manager and load textures for effects
+### 2. Initialize particle manager and load textures for effects
+```
 const manager = new ParticleEffectsManager();
 await manager.textureManager.loadTextureLibrary();
 
@@ -38,22 +40,30 @@ const engine = new MondlichEngine(canvas);
 */
 const adapter = new MondlichAdapter(engine);
 manager.setAdapter(adapter);
+```
 
+### 3. Prepare camera state
+```
 // 3. Prepare camera state
 engine.camera.moveEye([0, -550, -20]);
 engine.camera.moveLookAt([0, -1100, -500]);
+```
 
-// 4. Create effects
+### 4. Create effects 
+```
 const fire = manager.createFire({
   particlesCount: 20000,
   spawnFramespan: 1,
 });
+```
 
-// 5. (Optional) Enable WebWorker execution context for effect computations
+###  5. (Optional) Enable WebWorker execution context for effect computations
+```
 manager.setWorkerEnabled(fire, true);
+```
 
-// 6. Enable effects and start game loop
-
+### 6. Enable effects and launch game loop
+```
 fire.start();
 
 const loop = async () => {
