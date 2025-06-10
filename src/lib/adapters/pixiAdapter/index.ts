@@ -3,7 +3,7 @@ import { mat4 } from 'gl-matrix';
 import { EngineAdapter } from '@/lib';
 import { TViewportSize } from '@/lib/domain/types';
 
-export class PixiJSEngineAdapter extends EngineAdapter {
+export class PixiJSAdapter extends EngineAdapter {
   private app: Application;
   readonly gl: WebGL2RenderingContext;
 

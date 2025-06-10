@@ -2,6 +2,8 @@ export { MondlichEngine } from './engine/index';
 
 export { EngineAdapter } from './adapters/engineAdapter';
 export { MondlichAdapter } from './adapters/mondlichAdapter';
+export { PhaserAdapter } from './adapters/phaserAdapter';
+export { PixiJSAdapter } from './adapters/pixiAdapter';
 
 export { ParticleEffect } from './core/particleEffect';
 export { ParticleEffectsManager } from './core/particleEffectsManager';

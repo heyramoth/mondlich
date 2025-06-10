@@ -7,7 +7,7 @@ import {
 import { EngineAdapter } from '@/lib';
 import { TViewportSize } from '@/lib/domain/types';
 
-export class PhaserEngineAdapter extends EngineAdapter {
+export class PhaserAdapter extends EngineAdapter {
   private game: Game;
   private scene: Scene;
 
