@@ -5,6 +5,7 @@ import DiamondImg from '@/assets/textures/diamond-emoji.png';
 import SmokeImg from '@/assets/textures/smoke.png';
 import Smoke2Img from '@/assets/textures/smoke2.png';
 import FlameImg from '@/assets/textures/flame.png';
+import DropImg from '@/assets/textures/drop.png';
 
 export class TextureManager {
   private textureCache: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
@@ -40,6 +41,7 @@ export class TextureManager {
       this.loadImage('smoke', SmokeImg),
       this.loadImage('smoke2', Smoke2Img),
       this.loadImage('flame', FlameImg),
+      this.loadImage('drop', DropImg),
     ]);
   }
 }

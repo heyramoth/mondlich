@@ -43,15 +43,6 @@ export const setupFountainScene = async (): Promise<void> => {
 
   const timer = new Timer(false);
 
-  const updateEffectSettings = () => {
-    const t = timer.getElapsedTime();
-    effect.settings.color = vec3.fromValues(
-      MondlichMath.lerp(effect.settings.color[0], Math.random(), t),
-      MondlichMath.lerp(effect.settings.color[1], Math.random(), t),
-      MondlichMath.lerp(effect.settings.color[2], Math.random(), t),
-    );
-  };
-
   const userInput = new UserInput({
     camera: engine.camera,
     sensitivity: 1,
@@ -71,7 +62,7 @@ export const setupFountainScene = async (): Promise<void> => {
     await manager.update();
     userInput.update();
 
-    updateEffectSettings();
+    // updateEffectSettings();
     render();
 
     requestAnimationFrame(loop);
